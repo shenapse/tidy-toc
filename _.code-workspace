@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"name": "tempele",
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.languageServer": "Pylance"
+	}
+}

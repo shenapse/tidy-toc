@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "python-templete"
+version = "0.1.0"
+description = ""
+authors = ["shane <https://github.com/Shena4746/python-templete>"]
+
+[tool.poetry.dependencies]
+python = "3.10.5"
+
+[tool.poetry.dev-dependencies]
+black = "^22.6.0"
+nptyping = "^2.2.0"
+mypy = "^0.971"
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+pytest = "^7.1.2"
+ipykernel = "^6.15.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

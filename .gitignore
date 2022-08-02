@@ -1,0 +1,2 @@
+# ignore .history directory that is created by vscode extension
+/.history
