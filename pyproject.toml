@@ -6,6 +6,8 @@ authors = ["shane <https://github.com/Shena4746/python-templete>"]
 
 [tool.poetry.dependencies]
 python = "3.10.5"
+rich = "^12.5.1"
+click = "^8.1.3"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"

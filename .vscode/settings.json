@@ -17,6 +17,9 @@
 	"python.analysis.completeFunctionParens": true,
 	"python.languageServer": "Pylance",
 	"python.analysis.typeCheckingMode": "basic",
+	"python.linting.flake8Args": [
+		"--ignore=E501"
+	],
 	"python.linting.lintOnSave": true,
 	"python.linting.mypyEnabled": true,
 	"python.linting.mypyArgs": [

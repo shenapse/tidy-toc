@@ -17,7 +17,7 @@ def collect_zip(search_from: Path | str, dir_out: Path | str) -> Paths:
     """collect zip files in sub-directories to dir_out"""
     dir_search_from: Path = Path(search_from)
     if not dir_search_from.exists():
-        raise ValueError(f"path does not exists. {search_from}")
+        raise ValueError(f"path does not exist. {search_from}")
     # recursively get zip
     zips: Paths = list(dir_search_from.glob("**/*.zip"))
     # check each file is contained in independent directory
@@ -31,8 +31,7 @@ def collect_zip(search_from: Path | str, dir_out: Path | str) -> Paths:
         )
         raise Exception(err_msg)
     # rename zip and move up to dir_out
-    out: Path = Path(dir_out)
-    new_paths: Paths = [out / f"{z.parent.stem}.zip" for z in zips]
+    new_paths: Paths = [Path(dir_out) / f"{z.parent.stem}.zip" for z in zips]
     for i, zip in enumerate(zips):
         zip.rename(new_paths[i])
     return new_paths
