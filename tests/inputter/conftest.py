@@ -10,6 +10,8 @@ import pytest
 sys.path.append(os.path.join(".", "scr"))
 from Inputter import Inputter  # type: ignore
 
+# from scr.Inputter import Inputter
+
 
 @pytest.fixture
 def constants():
@@ -41,7 +43,7 @@ class test_data_file:
 
 @dataclasses.dataclass
 class test_data:
-    data: str
+    data: Inputter.Word
     res: list[int]
 
 
@@ -52,7 +54,7 @@ def get_test_data(file_path: Path) -> list[test_data]:
         reader = csv.reader(f, skipinitialspace=True)
         for row in reader:
             res: list[int] = [] if len(row) <= 1 or row[1] == "" else [int(r) for r in row[1:]]
-            data.append(test_data(data=row[0], res=res))
+            data.append(test_data(data=Inputter.Word(row[0]), res=res))
     return data
 
 

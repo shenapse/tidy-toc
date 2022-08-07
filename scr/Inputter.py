@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 import re
-from dataclasses import dataclass
 from enum import IntEnum, auto
 from re import Match, Pattern
 from typing import Callable, Final, Iterable
@@ -106,16 +105,38 @@ class _Input(metaclass=abc.ABCMeta):
 
 
 class Inputter(_Input):
-    @dataclass
-    class Word:
-        word: str
+    class Word(str):
+        """restriction of str class to \\S and lower case."""
 
-    @dataclass
-    class Sentence:
-        sentence: str
+        pat: Final[Pattern] = re.compile("^\\S+$")
+
+        def __new__(cls, val: str):
+            self = super().__new__(cls, val.lower())
+            self.validate_text(val)
+            return self
+
+        def validate_text(self, text: str) -> bool:
+            if list(re.finditer(self.pat, text)) == []:
+                raise ValueError(f"Invalid input. {text} contains a forbidden character.")
+            return True
+
+    class Sentence(str):
+        """restriction of str class to [\\S ] and lower case."""
+
+        pat: Final[Pattern] = re.compile("^[\\S ]+$")
+
+        def __new__(cls, val: str):
+            self = super().__new__(cls, val.lower())
+            self.validate_text(val)
+            return self
+
+        def validate_text(self, text: str) -> bool:
+            if list(re.finditer(self.pat, text)) == []:
+                raise ValueError(f"Invalid input. {text} contains a forbidden character.")
+            return True
 
         def to_words(self) -> list[Inputter.Word]:
-            return [Inputter.Word(s) for s in self.sentence.split()]
+            return [Inputter.Word(s) for s in self.split()]
 
     # regexp patterns and their key names
     class Digit:
@@ -136,9 +157,12 @@ class Inputter(_Input):
         """holds identifiers key phrases as Phrase.Name and corresponding Pattern objects that detect the phrases in raw input"""
 
         class Pat:
-            none: Final[Pattern] = re.compile("^n$|^no$|^none$")
-            all: Final[Pattern] = re.compile("^a$|^all$")
-            help: Final[Pattern] = re.compile("^h$|^help$")
+            none_raw: Final[str] = "^n$|^no$|^none$"
+            none: Final[Pattern] = re.compile(none_raw)
+            all_raw: Final[str] = "^a$|^all$"
+            all: Final[Pattern] = re.compile(all_raw)
+            help_raw: Final[str] = "^h$|^help$"
+            help: Final[Pattern] = re.compile(help_raw)
 
         class Name(IntEnum):
             NONE = auto()
@@ -176,6 +200,7 @@ class Inputter(_Input):
         self.__max_line: int = max_line
         self.__range: set[int] = set(range(0, max_line + 1))
         self.__input: set[int] = set()
+        self.__valid_words: set[Inputter.Word] = self.list_valid_words()
 
     @property
     def input(self) -> set[int]:
@@ -190,6 +215,10 @@ class Inputter(_Input):
     def range(self) -> set[int]:
         return self.__range
 
+    @property
+    def valid_words(self) -> set[Word]:
+        return self.__valid_words
+
     def clear(self) -> None:
         """Initialize self.__input while self.max_line and self.range remain kept."""
         self.__input.clear()
@@ -197,10 +226,6 @@ class Inputter(_Input):
     def get_input(self) -> list[int]:
         """get the translated input. The output list is sorted and admits no duplicated elements."""
         return list(self.input)
-
-    def _get_split_text(self, sentence: str) -> list[str]:
-        """split the input of raw sentence into list of str. This defines the way this class splits the input string."""
-        return sentence.split()
 
     def _is_in_range(self, x: int | set[int]) -> bool:
         """test if the input integer or set of interges is in valid range determined by max_line."""
@@ -210,41 +235,41 @@ class Inputter(_Input):
         """get the list of re.Match objects that correspond to input pattern and word."""
         return list(re.finditer(pat, word))
 
-    def _test_match(self, pat: Pattern, word: str) -> bool:
+    def _test_match(self, pat: Pattern, word: Word) -> bool:
         """test if the input pair of pattern and word hits something nonempty."""
         return self._get_matches(pat, word) != []
 
-    def _test_match_by(self, pats: list[Pattern], word: str, eval: Callable[[Iterable], bool] = any) -> bool:
+    def _test_match_by(self, pats: list[Pattern], word: Word, eval: Callable[[Iterable], bool] = any) -> bool:
         """An extention of _test_match() to accept many patterns. returns the result processed by the eval function."""
         return eval(self._test_match(pat, word) for pat in pats)
 
-    def _apply_digit_pattern(self, word: str) -> None:
+    def _apply_digit_pattern(self, word: Word) -> None:
         """add digit to input property specified by word, assuming word corresponds to a digit pattern."""
         self.__input.add(self._get_matched_integers(self.Digit(), word)[0])
 
-    def _apply_minus_pattern(self, word: str) -> None:
+    def _apply_minus_pattern(self, word: Word) -> None:
         """minus digit from input property specified by word, assuming word corresponds to a minus digit pattern."""
         self.__input.discard(self._get_matched_integers(self.Minus(), word)[0])
 
-    def _apply_range_pattern(self, word: str) -> None:
+    def _apply_range_pattern(self, word: Word) -> None:
         """add digits to input property specified by word, assuming word corresponds to a range pattern."""
         x, y = self._get_matched_integers(self.Range(), word)
         self.__input = self.input | set(range(min(x, y), max(x, y) + 1))
 
     def _get_matched_integers(
-        self, match_cls: Inputter.Digit | Inputter.Minus | Inputter.Range, word: str
+        self, match_cls: Inputter.Digit | Inputter.Minus | Inputter.Range, word: Word
     ) -> list[int]:
         """get list of integers when the pair of pattern (of match_cls) and word hits something meaningful."""
         return [int(self._get_matches(match_cls.pat, word)[0].group(call)) for call in match_cls.calls]
 
-    def _get_matched_phrase(self, word: str) -> Phrase.Name:
+    def _get_matched_phrase(self, word: Word) -> Phrase.Name:
         """get the first phrase hit in word. Error if it hits no phrases."""
         for name in self.Phrase.Name:
             if self._test_match(self.Phrase.get_pattern(name), word):
                 return name
         raise Exception(f"{word} does not match any of {self.Phrase.__name__}.")
 
-    def _apply_phrase(self, word: str) -> None:
+    def _apply_phrase(self, word: Word) -> None:
         """to input, apply in-place change meant by phrase in word. an error wil be raised if word is not a phrase."""
         match self._get_matched_phrase(word):  # raise error if it is not a phrase
             case self.Phrase.Name.ALL:
@@ -252,13 +277,13 @@ class Inputter(_Input):
             case self.Phrase.Name.NONE:
                 self.clear()
 
-    def _exist_dominant_phrase(self, word: str) -> bool:
+    def _exist_dominant_phrase(self, word: Word) -> bool:
         """test if word has a dominant phrase."""
         return any(
             self._test_match(self.Phrase.get_pattern(d_name), word) for d_name in self.Phrase.get_dominant_names()
         )
 
-    def _find_dominant_phrase(self, word: str) -> Phrase.Name:
+    def _find_dominant_phrase(self, word: Word) -> Phrase.Name:
         """get the most dominant phrase in word."""
         d_phrases = [
             name for name in self.Phrase.get_dominant_names() if self._test_match(self.Phrase.get_pattern(name), word)
@@ -273,11 +298,24 @@ class Inputter(_Input):
         """show help typically triggered by help phrase."""
         print("help!")
 
-    def _check_length(self, sentence: str) -> bool:
-        return True
+    def list_valid_words(self) -> set[Word]:
+        """get the possible charasters for input. It is defiend as the set {numrical characters in range} | {space and -} | {characters in phrase}."""
+        # default set consists of numerical characters and space and -.
+        default: set[Inputter.Word] = {self.Word(" "), self.Word("\\-")}.union(
+            [self.Word(str(r)) for r in range(0, 10)]
+        )
+        # characters in phrase
+        pat: Pattern = re.compile("[a-z]")
+        src: str = self.Phrase.Pat.all_raw + self.Phrase.Pat.none_raw + self.Phrase.Pat.help_raw
+        matches: list[Match] = list(re.finditer(pat, src))
+        return set([self.Word(m.group(0)) for m in matches]).union(default)
 
-    def _check_characters(self, sentence: str) -> bool:
-        return True
+    def _check_length(self, sentence: Sentence) -> bool:
+        return len(sentence) <= self.max_line * 5
+
+    def _check_words(self, sentence: Sentence) -> bool:
+        pat: Pattern = re.compile("[^" + "".join(self.valid_words) + "]")
+        return list(re.finditer(pat, sentence)) == []
 
     def ask(self, msg: str = "") -> None:
         pass
