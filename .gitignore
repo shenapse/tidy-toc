@@ -1,14 +1,14 @@
 # ignore .history directory that is created by vscode extension
 /.history
 /.venv
-/tests
 /sample
 /scr/*
-/scr/__pycache__
+/**/__pycache__
 !/scr/Cleaner.py
 !/scr/collect_zip.py
 !/scr/Extractor.py
-!/scr/Input.py
+!/scr/Inputter.py
 !/scr/Selector.py
 !/scr/Text_Line.py
 !/scr/Type_Alias.py
+!/tests/inputter/

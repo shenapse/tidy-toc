@@ -1,5 +1,5 @@
 from Extractor import Extractor, Text_Lines
-from Input import Input_lines
+from scr.Inputs import Input_lines
 
 
 class Line_Selector:
