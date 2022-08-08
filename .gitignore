@@ -3,6 +3,7 @@
 /.venv
 /sample
 /scr/*
+/
 /**/__pycache__
 !/scr/Cleaner.py
 !/scr/collect_zip.py

@@ -69,7 +69,7 @@ def uninterpretable_sentence() -> list[str]:
 
 
 def get_range(start: int, end: int) -> list[int]:
-    return list(range(start, end + 1))
+    return list(range(start, end))
 
 
 def interpret_sentence_ok_unit(max_line: int) -> list[tuple[str, list[int]]]:
@@ -85,8 +85,8 @@ def interpret_sentence_ok_unit(max_line: int) -> list[tuple[str, list[int]]]:
     range_d = [
         ("0-0", [0]),
         ("15-15", [15]),
-        ("0-10", get_range(0, 10)),
-        ("10-0", get_range(0, 10)),
+        ("0-10", get_range(0, 10 + 1)),
+        ("10-0", get_range(0, 10 + 1)),
         ("2-2 5-6", [2, 5, 6]),
         ("3-3 2-1", [1, 2, 3]),
         ("5-5 7-11", [5, 7, 8, 9, 10, 11]),
@@ -123,7 +123,7 @@ def interpret_sentence_ok_unit(max_line: int) -> list[tuple[str, list[int]]]:
 def interpret_sentence_ok_mixed(max_line: int) -> list[tuple[str, list[int]]]:
     all = get_range(0, max_line)
     return [
-        ("all none 1-4", get_range(1, 4)),
+        ("all none 1-4", get_range(1, 4 + 1)),
         ("all 1-5 none", []),
         ("all 5-6 -0", get_range(1, max_line)),
         ("-1 none all", all),
@@ -132,7 +132,7 @@ def interpret_sentence_ok_mixed(max_line: int) -> list[tuple[str, list[int]]]:
         ("6-7 none 6", [6]),
         ("none -4 none", []),
         ("all -2 2", all),
-        ("1-3 4 -4", get_range(1, 3)),
+        ("1-3 4 -4", get_range(1, 3 + 1)),
         ("5 all 9-2", all),
         ("5 none -2", []),
         ("all 8 none", []),
@@ -142,10 +142,10 @@ def interpret_sentence_ok_mixed(max_line: int) -> list[tuple[str, list[int]]]:
         ("-2 5 -5", []),
         ("1 1-10 none", []),
         ("none 4-0 all", all),
-        ("-1 1 1-5", get_range(1, 5)),
-        ("5-2 -2 9-1", get_range(1, 9)),
+        ("-1 1 1-5", get_range(1, 5 + 1)),
+        ("5-2 -2 9-1", get_range(1, 9 + 1)),
         ("all 7 all", all),
-        ("none 6-1 7", get_range(1, 7)),
+        ("none 6-1 7", get_range(1, 7 + 1)),
         ("none 9 1-2", [1, 2, 9]),
         ("8 1-2 9", [1, 2, 8, 9]),
     ]
@@ -202,9 +202,10 @@ def test_interpret_ng_on_uninterpretable(uninterpretable_sentence):
 
 
 def test_interpret_ok_unit():
-    for m in range(5, 100):
+    for m in range(10, 100):
         inp = Inputter(m)
         for data, ans in interpret_sentence_ok_unit(m):
+            print(data)
             s = Inputter.Sentence(data)
             assert sorted(inp.interpret(s)) == ans
 

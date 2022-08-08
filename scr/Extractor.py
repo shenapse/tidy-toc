@@ -24,7 +24,7 @@ class Extractor:
 
     def get_digit_only_lines(self) -> Text_Lines:
         """get pages containing no text other than page numbers"""
-        pat = re.compile("^[0-9\s]*$|^[ixv\s]*$|^[IXV\s]*$")
+        pat = re.compile("^[0-9\\s]+$|^[ixv\\s]+$|^[IXV\\s]+$")
         ret: Text_Lines = Text_Lines()
         for line in self.lines:
             found = re.findall(pat, line.text)
@@ -34,13 +34,13 @@ class Extractor:
 
     def get_page_number(self, line: Text_Line) -> str:
         """get the page number located in the tail of the input string line. Might be an empty string."""
-        page_regex = "(?:\s[0-9]*)$|(?:\s[ixv]*)$|(?:\s[IXV]*)$"
+        page_regex = "(?:\\s[0-9]*)$|(?:\\s[ixv]*)$|(?:\\s[IXV]*)$"
         pat = re.compile(page_regex)
         matches: list[str] = re.findall(pat, line.text)
         return matches[0] if matches != [] else ""
 
     def has_page_number(self, line: Text_Line) -> bool:
-        return self.get_page_number(line) != ""
+        return (num := self.get_page_number(line)) != "" and num != " "
 
     def is_front_matter(self, line: Text_Line) -> bool:
         """

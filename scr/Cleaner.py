@@ -50,9 +50,9 @@ class Cleaner(ICleaner):
 
     def __init__(
         self,
-        dust_pre_defined: list[str] = ["\.", "\s"],
+        dust_pre_defined: list[str] = ["\\.", "\\s"],
         dust_possible: str = "[a-zA-Z0-9]",
-        lead_exp: str = "(?<=[A-Z0-9\s][A-Za-z0-9\s])\S*?",
+        lead_exp: str = "(?<=[A-Z0-9\\s][A-Za-z0-9\\s])\\S*?",
         dust_rep: int = 3,
     ) -> None:
         self.dust_major: list[str] = dust_pre_defined
@@ -64,7 +64,7 @@ class Cleaner(ICleaner):
     def get_dust_characters(self) -> list[str]:
         # pre-defined major pattern
         # dust pattern
-        pat = re.compile(r"[A-Z].*(" + self.dust_possible + ")\\1{2,}")
+        pat = re.compile(f"[A-Z].*({self.dust_possible})\\1{2,}")
         dust_redundant: list[str] = re.findall(pat, self.lines.to_text())
         dust: list[str] = []
         for d in dust_redundant:
@@ -80,7 +80,7 @@ class Cleaner(ICleaner):
     def get_dust_expression(self) -> str:
         """
         get pre-regex string for leading text + dusts + page_number.
-        dust + page_number part is acceptable by 'dust_start' keyword
+        dust + page_number part is accessible by 'dust_start' keyword
         via Match object.
         """
         dust_care: list[str] = ["e"]
@@ -92,7 +92,7 @@ class Cleaner(ICleaner):
         # dust_exps: list[str] = [
         #     "|".join([f"[{d}{dm}]" + rep_exp for dm in self.dust_major]) for d in self.get_dust_characters()
         # ]
-        dust_exp = "(?P<" + Cleaner.dust_phrase + ">\s?(" + "|".join(dust_exps) + ").*)"
+        dust_exp = "(?P<" + Cleaner.dust_phrase + ">\\s?(" + "|".join(dust_exps) + ").*)"
         # resulting pattern looks like
         # '(?<=[A-Z0-9])(\S*?)(?P<dust_phrase>\s?([e\s]{3,}|[e\.]{3,}|[\.\s]{3,}|[\.0\s]){3,}.*)()'
         return self.lead_exp + dust_exp
@@ -111,17 +111,25 @@ class Spacer(ICleaner):
     def __init__(self) -> None:
         self.lines: Text_Lines = Text_Lines()
 
-    def remove_leading_spaces(self) -> Text_Lines:
+    def _remove_leading_spaces(self) -> Text_Lines:
         """remove leading spaces on each line (if exist), and return the removed lines."""
-        pat: Pattern = re.compile("^\s*(?P<body>\S.*)")
+        pat: Pattern = re.compile("^\\s*(?P<body>\\S.*)")
         return self.apply_each_line(pat, lambda m, _: m[0].group("body"))
 
-    def remove_tail_spaces(self) -> Text_Lines:
+    def _remove_tail_spaces(self) -> Text_Lines:
         """remove tail spaces on each line (if exist), and return the removed lines."""
-        pat: Pattern = re.compile("(?P<body>.*\S)\s*$")
+        pat: Pattern = re.compile("(?P<body>.*\\S)\\s*$")
         return self.apply_each_line(pat, lambda m, _: m[0].group("body"))
+
+    def _is_blank_line(self, line: Text_Line) -> bool:
+        pat: Pattern = re.compile("^\\s*$")
+        return list(re.finditer(pat, line.text)) != []
+
+    def remove_blank_lines(self) -> Text_Lines:
+        rows: list[int] = [line.idx for line in self.lines if not self._is_blank_line(line)]
+        return self.lines.select(rows=rows)
 
     def remove_redundant_spaces(self) -> Text_Lines:
         s = Spacer()
-        s.read_lines(self.remove_leading_spaces())
-        return s.remove_tail_spaces()
+        s.read_lines(self._remove_leading_spaces())
+        return s._remove_tail_spaces()

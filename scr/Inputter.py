@@ -117,9 +117,9 @@ class Inputter(_Input):
 
     def __init__(self, max_line: int = 10) -> None:
         if max_line <= 0 or not isinstance(max_line, int):
-            raise ValueError("max line must be a postive integer.")
+            raise ValueError(f"max line must be a positive integer. input={max_line}.")
         self.__max_line: int = max_line
-        self.__range: set[int] = set(range(0, max_line + 1))
+        self.__range: set[int] = set(range(0, max_line))
         self.__input: set[int] = set()
         self.__default_words: set[str] = {" ", "\\-"}.union([str(r) for r in range(0, min(10, max_line + 1))])
         self.__valid_words: list[str] = sorted(self._list_valid_words())
@@ -274,25 +274,27 @@ class Inputter(_Input):
         while True:
             try:
                 # init input property
-                self.clear()
+                inp = Inputter(max_line=self.max_line)
+                assert inp.range != set()
                 raw_input: str = click.prompt(msg, type=str)
                 sentence = Inputter.Sentence(raw_input)
                 # check length and characters
-                if not self._test_valid_length(sentence):
+                if not inp._test_valid_length(sentence):
                     raise ValueError("Invalid length.")
-                elif not self._test_valid_words(sentence):
+                elif not inp._test_valid_words(sentence):
                     raise ValueError("Invalid characters.")
                 # check exist dominant phrase
-                if self._exist_dominant_phrase(sentence):
-                    phrase: Inputter.Phrase.Name = self._find_most_dominant_phrase(sentence)
+                if inp._exist_dominant_phrase(sentence):
+                    phrase: Inputter.Phrase.Name = inp._find_most_dominant_phrase(sentence)
                     if phrase == Inputter.Phrase.Name.HELP:
-                        self.print_help()
+                        inp.print_help()
+                        continue
                     else:
                         raise ValueError(f"Unknown dominant phrase {phrase}.")
                 # now we assume that input means some digits
-                input_interpreted: set[int] = self.interpret(sentence=sentence)
-                if not self._is_in_range(input_interpreted):
-                    raise ValueError("Some input is too large.")
+                input_interpreted: set[int] = inp.interpret(sentence=sentence)
+                if not inp._is_in_range(input_interpreted):
+                    raise ValueError(f"Some input is too large. input={list(input_interpreted)}. range={inp.range}")
                 # check end!
                 self.__input = input_interpreted
                 break

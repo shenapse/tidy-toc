@@ -72,14 +72,21 @@ class Text_Lines(list[Text_Line]):
     def is_empty(self) -> bool:
         return len(self) == 0
 
-    def print(self, start: int = 0, end: int = -1, with_header=True):
+    def print(self, start: int = 0, end: int = -1, with_page_idx: bool = True, with_header: bool = True):
         """print continuous part of text lines.
         By default it prints all lines."""
         end_: int = end if end > 0 else len(self)
         if with_header:
-            print("[magenta]N[/] : [cyan]Row[/] : Text")
+            header_elems: list[str] = ["[magenta]N[/]", page_idx := "[cyan]Row[/]", "Text"]
+            if not with_page_idx:
+                header_elems.remove(page_idx)
+            header: str = " | ".join(header_elems)
+            print(header)
         for i in range(start, end_):
-            print(f"[magenta]{i-start}[/] : {self[i].idx} : {self[i].text}")
+            print_elems: list[str] = [f"[magenta]{i-start}[/]", page_idx := f"{self[i].idx}", f"{self[i].text}"]
+            if not with_page_idx:
+                print_elems.remove(page_idx)
+            print(" | ".join(print_elems))
 
     def print_around(self, at: int, offset: int = 2):
         at_: int = min(at, len(self) - 1)
@@ -115,17 +122,6 @@ class Text_Lines(list[Text_Line]):
 
     def exclude(self, rows: list[int]) -> Text_Lines:
         return self - self.select(rows)
-
-    # def filter(self, cdn: list[int] | Text_Lines = [], exclude: bool = True) -> Text_Lines:
-    #     """get a new text lines object without input cdn lines"""
-    #     if len(cdn) == 0:
-    #         return self if exclude else Text_Lines()
-    #     index: list[int] = cdn.get_index() if isinstance(cdn, Text_Lines) else cdn
-    #     return (
-    #         Text_Lines([s for s in self if s.idx not in index])
-    #         if exclude
-    #         else Text_Lines([s for s in self if s.idx in index])
-    #     )
 
     def remove_duplication(self) -> Text_Lines:
         """remove duplicated lines and return the removed lines."""
