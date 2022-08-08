@@ -39,11 +39,12 @@ class test_data_file:
     all_ok_file: Path = root / "all.csv"
     none_file: Path = root / "none.csv"
     help_file: Path = root / "help.csv"
+    word_ng_file: Path = root / "word_ng.csv"
 
 
 @dataclasses.dataclass
 class test_data:
-    data: Inputter.Word
+    data: str
     res: list[int]
 
 
@@ -54,7 +55,7 @@ def get_test_data(file_path: Path) -> list[test_data]:
         reader = csv.reader(f, skipinitialspace=True)
         for row in reader:
             res: list[int] = [] if len(row) <= 1 or row[1] == "" else [int(r) for r in row[1:]]
-            data.append(test_data(data=Inputter.Word(row[0]), res=res))
+            data.append(test_data(data=row[0], res=res))
     return data
 
 

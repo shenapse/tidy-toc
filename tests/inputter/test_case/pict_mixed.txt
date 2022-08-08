@@ -1,0 +1,6 @@
+term1: all, none, digit, minus, range
+term2: all, none, digit, minus, range
+term3: all, none, digit, minus, range
+
+[term1] <> [term2] and [term2] <> [term3];
+

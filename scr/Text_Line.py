@@ -66,7 +66,7 @@ class Text_Lines(list[Text_Line]):
         return isinstance(text, list) and (True if len(text) == 0 else isinstance(text[0], str))
 
     def __get_pre_Text_Lines(self, text: str | list[str]) -> list[Text_Line]:
-        texts: list[str] = text.split("\n") if isinstance(text, str) else text
+        texts: list[str] = text.splitlines() if isinstance(text, str) else text
         return [Text_Line(i, s) for i, s in enumerate(texts)]
 
     def is_empty(self) -> bool:

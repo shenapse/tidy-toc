@@ -1,12 +1,13 @@
 from Extractor import Extractor, Text_Lines
-from scr.Inputs import Input_lines
+from Inputter import Inputter
 
 
 class Line_Selector:
     def __init__(self, lines: Text_Lines = Text_Lines(), max_line: int = 10) -> None:
         self.max_line = max_line
         self.lines: Text_Lines = lines
-        self.inp: Input_lines = Input_lines()
+        # self.inp: Input_lines = Input_lines()
+        self.inp: Inputter = Inputter(max_line)
 
     def read_Text_Lines(self, text: Text_Lines) -> None:
         self.lines = text
@@ -24,7 +25,7 @@ class Line_Selector:
             with_header: bool = set == 0
             self.lines.print(start, end, with_header)
             # ask user to enter line indexes to delete
-            self.inp.prompt(msg="enter N to delete (N/-N/all/none)", range=list(range(0, min(self.max_line, L - adds))))
+            self.inp.prompt(msg="enter N to delete (N/-N/all/none)")
             # pool deleting idx
             selected_idx: list[int] = [self.lines.get_row_idx(i + adds) for i in self.inp.get_input()]
             print(f"select {selected_idx}")
