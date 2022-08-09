@@ -4,12 +4,12 @@ import sys
 
 import pytest
 
-# from scr.Inputter import Inputter
+# from scr.Interpreter import Interpreter
 
 sys.path.append(os.path.join(".", "scr"))
 
 
-from Inputter import Inputter  # type: ignore
+from Interpreter import Interpreter  # type: ignore
 
 #
 # --------------------------------------
@@ -25,13 +25,13 @@ def add_space(texts: list[str]) -> list[str]:
 @pytest.fixture
 def invalid_characters() -> list[str]:
     """characters not allowed by valid words"""
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     return [chr(i) for i in range(97, 123) if chr(i) not in inp.valid_words]
 
 
 @pytest.fixture
 def invalid_characters_mixed(invalid_characters) -> list[str]:
-    inp = Inputter(10)
+    inp = Interpreter(10)
     ok_words = inp.valid_words
     mixed: list[str] = []
     for w1 in ok_words:
@@ -186,34 +186,34 @@ def interpret_sentence_ok_mixed(max_line: int) -> list[tuple[str, list[int]]]:
 
 
 def test_interpret_ng_on_invalid_characters(invalid_characters, invalid_characters_mixed):
-    inp = Inputter(max_line=20)
+    inp = Interpreter(range_max=20)
     for s in invalid_characters_mixed + invalid_characters:
-        assert not inp._test_valid_words(sentence=Inputter.Sentence(s))
+        assert not inp._test_valid_words(sentence=Interpreter.Sentence(s))
 
 
 def test_interpret_ng_on_uninterpretable(uninterpretable_sentence):
-    inp = Inputter(max_line=20)
+    inp = Interpreter(range_max=20)
     for s in uninterpretable_sentence:
         # this uses valid characters but uninterpretable
         if not s == " ":  # space only character is forbidden by sentence class
-            assert inp._test_valid_words(sentence=Inputter.Sentence(s))
+            assert inp._test_valid_words(sentence=Interpreter.Sentence(s))
         with pytest.raises(ValueError):
-            inp.interpret(sentence=Inputter.Sentence(s))
+            inp._interpret(sentence=Interpreter.Sentence(s))
 
 
 def test_interpret_ok_unit():
     for m in range(10, 100):
-        inp = Inputter(m)
+        inp = Interpreter(m)
         for data, ans in interpret_sentence_ok_unit(m):
             print(data)
-            s = Inputter.Sentence(data)
-            assert sorted(inp.interpret(s)) == ans
+            s = Interpreter.Sentence(data)
+            assert sorted(inp._interpret(s)) == ans
 
 
 def test_interpret_ok_mixed():
     for m in range(10, 100):
-        inp = Inputter(m)
+        inp = Interpreter(m)
         for data, ans in interpret_sentence_ok_mixed(m):
-            s = Inputter.Sentence(data)
+            s = Interpreter.Sentence(data)
             print(s)
-            assert sorted(inp.interpret(s)) == ans
+            assert sorted(inp._interpret(s)) == ans

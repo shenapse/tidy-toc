@@ -21,7 +21,7 @@ class _Input(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class Inputter(_Input):
+class Interpreter:
     class Word(str):
         """restriction of str class to \\S and lower case."""
 
@@ -59,8 +59,8 @@ class Inputter(_Input):
                 raise ValueError("text contains nothing but spaces.")
             return True
 
-        def to_words(self) -> list[Inputter.Word]:
-            return [Inputter.Word(s) for s in self.split()]
+        def to_words(self) -> list[Interpreter.Word]:
+            return [Interpreter.Word(s) for s in self.split()]
 
     # regexp patterns and their key names
     class Digit:
@@ -115,23 +115,22 @@ class Inputter(_Input):
             """get dominant names in Phrase class. Note that dominant names are not defined explicitly in their propertry, but implicitly by is_dominant_function."""
             return [name for name in cls.Name if cls.is_dominant(name)]
 
-    def __init__(self, max_line: int = 10) -> None:
-        if max_line <= 0 or not isinstance(max_line, int):
-            raise ValueError(f"max line must be a positive integer. input={max_line}.")
-        self.__max_line: int = max_line
-        self.__range: set[int] = set(range(0, max_line))
+    def __init__(self, range_max: int = 10) -> None:
+        self._validate_range(range_max=range_max)
+        self.__range: set[int] = set(range(0, range_max))
         self.__input: set[int] = set()
-        self.__default_words: set[str] = {" ", "\\-"}.union([str(r) for r in range(0, min(10, max_line + 1))])
+        self.__default_words: set[str] = {" ", "\\-"}.union([str(r) for r in range(0, min(10, range_max + 1))])
         self.__valid_words: list[str] = sorted(self._list_valid_words())
+
+    def _validate_range(self, range_max: int) -> bool:
+        if range_max <= 0 or not isinstance(range_max, int):
+            raise ValueError(f"range max must be a positive integer. ={range_max}.")
+        return True
 
     @property
     def input(self) -> set[int]:
         """get current input as a set."""
         return self.__input
-
-    @property
-    def max_line(self) -> int:
-        return self.__max_line
 
     @property
     def range(self) -> set[int]:
@@ -146,7 +145,7 @@ class Inputter(_Input):
         return self.__default_words
 
     def clear(self) -> None:
-        """Initialize self.__input while self.max_line and self.range remain kept."""
+        """Initialize self.__input while self.range remains kept."""
         self.__input.clear()
 
     def get_input(self) -> list[int]:
@@ -154,7 +153,7 @@ class Inputter(_Input):
         return sorted(self.input)
 
     def _is_in_range(self, x: int | set[int]) -> bool:
-        """test if the input integer or set of interges is in valid range determined by max_line."""
+        """test if the input integer or set of integers is in valid range."""
         return x in self.range if isinstance(x, int) else x.issubset(self.range)
 
     def _get_matches(self, pat: Pattern, word: Word) -> list[Match]:
@@ -187,7 +186,7 @@ class Inputter(_Input):
         return wrt | set(range(min(x, y), max(x, y) + 1))
 
     def _get_matched_integers(
-        self, match_cls: Inputter.Digit | Inputter.Minus | Inputter.Range, word: Word
+        self, match_cls: Interpreter.Digit | Interpreter.Minus | Interpreter.Range, word: Word
     ) -> list[int]:
         """get list of integers when the pair of pattern (of match_cls) and word hits something meaningful."""
         return [int(self._get_matches(match_cls.pat, word)[0].group(call)) for call in match_cls.calls]
@@ -241,16 +240,19 @@ class Inputter(_Input):
         src: str = self.Phrase.Pat.all.pattern + self.Phrase.Pat.none.pattern + self.Phrase.Pat.help.pattern
         return set([m.group(0) for m in re.finditer(pat, src)]).union(self.default_words)
 
-    def _test_valid_length(self, sentence: Sentence) -> bool:
-        """test if input sentence is of reasonable length."""
-        return len(sentence) <= self.max_line * 5
-
     def _test_valid_words(self, sentence: Sentence) -> bool:
         """test if input sentence is free of invalid characters"""
         pat: Pattern = re.compile("[^" + "".join(self.valid_words) + "]")
         return list(re.finditer(pat, sentence)) == []
 
-    def interpret(self, sentence: Sentence, wrt: set[int] = set()) -> set[int]:
+    def _get_maximum_valid_length(self, scale: int = 5) -> int:
+        return max(self.range) * scale
+
+    def _test_valid_length(self, sentence: Sentence) -> bool:
+        """test if input sentence is of reasonable length."""
+        return len(sentence) <= self._get_maximum_valid_length()
+
+    def _interpret(self, sentence: Sentence, wrt: set[int] = set()) -> set[int]:
         """get set of integers meant by sentence, assuming there is no dominant phrases that supersede integer interpretation."""
         for word in sentence.to_words():
             # if it is a phrase
@@ -269,36 +271,85 @@ class Inputter(_Input):
                 raise ValueError(f"{sentence} has nothing to interpret.")
         return wrt
 
+    def interpret(self, text: str) -> set[int] | None:
+        sentence = Interpreter.Sentence(text)
+        # check length and characters
+        if not self._test_valid_length(sentence):
+            raise ValueError(f"Invalid length. length > {self._get_maximum_valid_length()}.")
+        elif not self._test_valid_words(sentence):
+            raise ValueError(f"Invalid characters. Use from {self.valid_words}.")
+        # check exist dominant phrase
+        if self._exist_dominant_phrase(sentence):
+            phrase: Interpreter.Phrase.Name = self._find_most_dominant_phrase(sentence)
+            if phrase == Interpreter.Phrase.Name.HELP:
+                self.print_help()
+                return None
+            else:
+                raise ValueError(f"Unknown dominant phrase {phrase}.")
+        # now we assume that input means some digits
+        return self._interpret(sentence=sentence)
+
     def prompt(self, msg: str = "") -> None:
         """ask user to type input in CLI repeatedly until it gets a valid one."""
         while True:
             try:
                 # init input property
-                inp = Inputter(max_line=self.max_line)
-                assert inp.range != set()
+                inp = Interpreter(range_max=max(self.range))
                 raw_input: str = click.prompt(msg, type=str)
-                sentence = Inputter.Sentence(raw_input)
+                sentence = Interpreter.Sentence(raw_input)
                 # check length and characters
                 if not inp._test_valid_length(sentence):
-                    raise ValueError("Invalid length.")
+                    raise ValueError(f"Invalid length. length > {self._get_maximum_valid_length()}.")
                 elif not inp._test_valid_words(sentence):
-                    raise ValueError("Invalid characters.")
+                    raise ValueError(f"Invalid characters. some character not in {self.valid_words}.")
                 # check exist dominant phrase
                 if inp._exist_dominant_phrase(sentence):
-                    phrase: Inputter.Phrase.Name = inp._find_most_dominant_phrase(sentence)
-                    if phrase == Inputter.Phrase.Name.HELP:
+                    phrase: Interpreter.Phrase.Name = inp._find_most_dominant_phrase(sentence)
+                    if phrase == Interpreter.Phrase.Name.HELP:
                         inp.print_help()
                         continue
                     else:
                         raise ValueError(f"Unknown dominant phrase {phrase}.")
                 # now we assume that input means some digits
-                input_interpreted: set[int] = inp.interpret(sentence=sentence)
+                input_interpreted: set[int] = inp._interpret(sentence=sentence)
                 if not inp._is_in_range(input_interpreted):
                     raise ValueError(f"Some input is too large. input={list(input_interpreted)}. range={inp.range}")
                 # check end!
                 self.__input = input_interpreted
                 break
 
+            except ValueError as ve:
+                print(ve)
+                continue
+            except TypeError as te:
+                print(te)
+                continue
+            else:
+                raise Exception("An unexpected error.")
+
+
+class Prompt(_Input):
+    def __init__(self) -> None:
+        self._input: set[int] = set()
+
+    @property
+    def input(self) -> set[int]:
+        return self._input
+
+    def get_input(self) -> list[int]:
+        return sorted(self.input)
+
+    def prompt(self, inter: Interpreter, msg: str = "") -> None:
+        """ask user to type input in CLI repeatedly until it gets a valid one."""
+        while True:
+            try:
+                raw_input: str = click.prompt(msg, type=str)
+                res_interpreted: set[int] | None = inter.interpret(raw_input)
+                if res_interpreted is None:  # such as help is called
+                    continue
+                else:  # some set is returned
+                    self._input = res_interpreted
+                    break
             except ValueError as ve:
                 print(ve)
                 continue

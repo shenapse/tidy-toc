@@ -7,9 +7,12 @@ from rich import print
 
 
 class Text_Line:
-    def __init__(self, idx: int = -1, text: str = "") -> None:
+    def __init__(self, idx: int = -1, text: str = "", sep: str = " ") -> None:
+        text_slim: str = self.slim_down(text)
+        self._validate_text(text_slim)
         self.idx: int = idx
-        self.text: str = text
+        self.text: str = text_slim
+        self._sep: str = sep
 
     def __lt__(self, other: Text_Line) -> bool:
         return self.idx < other.idx
@@ -20,11 +23,52 @@ class Text_Line:
     def __repr__(self) -> str:
         return f"Text_Line: idx={self.idx}, text={self.text}"
 
+    @property
+    def sep(self) -> str:
+        return self._sep
+
     def is_empty(self) -> bool:
-        return self.idx == -1 or self.text == ""
+        return self.text == ""
+
+    def alter_sep(self, sep: str) -> None:
+        self._sep = sep
 
     def print(self) -> None:
         print(self.text)
+
+    def slim_down(self, text: str = "") -> str:
+        """remove leading and trailing spaces and newline."""
+        return text.strip()
+
+    def format_space(self) -> None:
+        self.text = " ".join([t for t in self.text.split(" ") if t != ""])
+
+    def _has_newline(self, text: str) -> bool:
+        return len(lines := text.splitlines()) != 0 and lines[0] != text
+
+    def _validate_text(self, text: str) -> bool:
+        """text should be free of newline characters"""
+        if self._has_newline(text):
+            raise ValueError(f"text must admit no newline character. text={text}")
+        return True
+
+    def get_words_at(self, at_n_th: int) -> str:
+        return self.text.split(self.sep)[at_n_th]
+
+    def get_number_of_words(self) -> int:
+        return len(self.text.split(self.sep))
+
+    def replace_words_at(self, at_n_th: int, replace_with: str) -> str:
+        texts: list[str] = self.text.split(self.sep)
+        old: str = texts[at_n_th]
+        if replace_with == "":
+            popped: str = texts.pop(at_n_th)
+            self.text = self.sep.join(texts)
+            return popped
+        else:
+            texts[at_n_th] = replace_with
+            self.text = self.sep.join(texts)
+            return old
 
 
 class Text_Lines(list[Text_Line]):
@@ -115,7 +159,7 @@ class Text_Lines(list[Text_Line]):
         return ret
 
     def select(self, rows: list[int]) -> Text_Lines:
-        """filter self into Text_Lines whose row numbers in rows input."""
+        """filter self into Text_Lines whose row numbers are in rows input."""
         if rows == []:
             return Text_Lines()
         return Text_Lines([self.get_line(i) for i in self.__to_sorted_unique(rows) if self.has_row(i)])
@@ -159,3 +203,7 @@ class Text_Lines(list[Text_Line]):
 
     def get_row_idx(self, idx: int) -> int:
         return self[idx].idx
+
+    def remove_blank_rows(self) -> Text_Lines:
+        rows: list[int] = [line.idx for line in self if not line.is_empty()]
+        return self.select(rows=rows)

@@ -6,87 +6,75 @@ import pytest
 
 sys.path.append(os.path.join(".", "scr"))
 
-from Inputter import Inputter  # type: ignore
+from Interpreter import Interpreter  # type: ignore
 
-# from scr.Inputter import Inputter
+# from scr.Interpreter import Interpreter
 
 
 #
 # --------------------------------------
 #   test start!
 # --------------------------------------
-#
-def test_negative_maxline_for_inputter_fails():
-    # check on float
-    for x in range(1, 101, 10):
-        x += 0.1
-        with pytest.raises(ValueError):
-            Inputter(max_line=x)  # type: ignore
-
-    # check on negative
-    for x in range(1, 101, 10):
-        with pytest.raises(ValueError):
-            Inputter(max_line=-x)
 
 
 # test Phrase
 def test_get_dominant_word(constants):
     for x in range(1, 101, 10):
-        assert Inputter(x).Phrase.get_dominant_names() == [constants.name_help]
+        assert Interpreter(x).Phrase.get_dominant_names() == [constants.name_help]
 
 
 def test_get_pattern_of_phrase(constants):
     for x in range(1, 101, 10):
-        get_pat = Inputter(max_line=x).Phrase.get_pattern
+        get_pat = Interpreter(range_max=x).Phrase.get_pattern
         assert get_pat(constants.name_none) == constants.pat_none
         assert get_pat(constants.name_all) == constants.pat_all
         assert get_pat(constants.name_help) == constants.pat_help
 
 
 def test_test_match_digit_ok(constants, digit_ok):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ok_sample: list[str] = [d.data for d in digit_ok]
     for s in ok_sample:
-        assert inp._test_match(constants.pat_digit, Inputter.Word(s))
+        assert inp._test_match(constants.pat_digit, Interpreter.Word(s))
 
 
 def test_test_match_digit_ng(constants, minus_ok, range_ok, ng):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ng_sample: list[str] = [d.data for d in (minus_ok + range_ok + ng)]
     for s in ng_sample:
-        assert not inp._test_match(constants.pat_digit, Inputter.Word(s))
+        assert not inp._test_match(constants.pat_digit, Interpreter.Word(s))
 
 
 def test_test_match_minus_ok(constants, minus_ok):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ok_sample: list[str] = [d.data for d in minus_ok]
     for s in ok_sample:
-        assert inp._test_match(constants.pat_minus, Inputter.Word(s))
+        assert inp._test_match(constants.pat_minus, Interpreter.Word(s))
 
 
 def test_test_match_minus_ng(constants, digit_ok, range_ok, ng):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ng_sample: list[str] = [d.data for d in (digit_ok + range_ok + ng)]
     for s in ng_sample:
-        assert not inp._test_match(constants.pat_minus, Inputter.Word(s))
+        assert not inp._test_match(constants.pat_minus, Interpreter.Word(s))
 
 
 def test_test_match_range_ok(constants, range_ok):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ok_sample: list[str] = [d.data for d in range_ok]
     for s in ok_sample:
-        assert inp._test_match(constants.pat_range, Inputter.Word(s))
+        assert inp._test_match(constants.pat_range, Interpreter.Word(s))
 
 
 def test_test_match_range_ng(constants, digit_ok, minus_ok, ng):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ng_sample: list[str] = [d.data for d in (digit_ok + minus_ok + ng)]
     for s in ng_sample:
-        assert not inp._test_match(constants.pat_range, Inputter.Word(s))
+        assert not inp._test_match(constants.pat_range, Interpreter.Word(s))
 
 
 def test_test_match_any_ok(constants, phrase_data, integer_data):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     pat_any: list[Pattern] = [
         constants.pat_none,
         constants.pat_all,
@@ -97,11 +85,11 @@ def test_test_match_any_ok(constants, phrase_data, integer_data):
     ]
     ok_sample: list[str] = [d.data for d in (phrase_data + integer_data)]
     for word in ok_sample:
-        assert inp._test_match_by(pats=pat_any, word=Inputter.Word(word))
+        assert inp._test_match_by(pats=pat_any, word=Interpreter.Word(word))
 
 
 def test_match_any_ng(constants, ng):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     pat_any: list[Pattern] = [
         constants.pat_none,
         constants.pat_all,
@@ -112,39 +100,39 @@ def test_match_any_ng(constants, ng):
     ]
     ng_sample: list[str] = [d.data for d in ng]
     for word in ng_sample:
-        assert not inp._test_match_by(pats=pat_any, word=Inputter.Word(word))
+        assert not inp._test_match_by(pats=pat_any, word=Interpreter.Word(word))
 
 
 def test_test_match_none_ok(constants, none_ok):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ok_sample: list[str] = [d.data for d in none_ok]
     for s in ok_sample:
-        assert inp._test_match(constants.pat_none, Inputter.Word(s))
+        assert inp._test_match(constants.pat_none, Interpreter.Word(s))
 
 
 def test_test_match_none_ng(constants, integer_data, all_ok, help_ok, ng):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ng_sample: list[str] = [d.data for d in (integer_data + all_ok + help_ok + ng)]
     for s in ng_sample:
-        assert not inp._test_match(constants.pat_none, Inputter.Word(s))
+        assert not inp._test_match(constants.pat_none, Interpreter.Word(s))
 
 
 def test_test_match_help_ok(constants, help_ok):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ok_sample: list[str] = [d.data for d in help_ok]
     for s in ok_sample:
-        assert inp._test_match(constants.pat_help, Inputter.Word(s))
+        assert inp._test_match(constants.pat_help, Interpreter.Word(s))
 
 
 def test_test_match_help_ng(constants, integer_data, all_ok, none_ok, ng):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ng_sample: list[str] = [d.data for d in (integer_data + all_ok + none_ok + ng)]
     for s in ng_sample:
-        assert not inp._test_match(constants.pat_help, Inputter.Word(s))
+        assert not inp._test_match(constants.pat_help, Interpreter.Word(s))
 
 
 def test_exsist_dominant_phrase_ok(help_ok):
-    inp = Inputter(max_line=10)
+    inp = Interpreter(range_max=10)
     ok_sample: list[str] = [d.data for d in help_ok]
     for s in ok_sample:
-        assert inp._exist_dominant_phrase(Inputter.Sentence(s))
+        assert inp._exist_dominant_phrase(Interpreter.Sentence(s))

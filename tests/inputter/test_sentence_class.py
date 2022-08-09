@@ -3,12 +3,12 @@ import sys
 
 import pytest
 
-# from scr.Inputter import Inputter
+# from scr.Interpreter import Interpreter
 
 sys.path.append(os.path.join(".", "scr"))
 
 
-from Inputter import Inputter  # type: ignore
+from Interpreter import Interpreter  # type: ignore
 
 #
 # --------------------------------------
@@ -48,9 +48,9 @@ def sentence_ok(integer_data, phrase_data) -> list[str]:
 def test_sentence_class_init_ng(sentence_ng):
     for s in sentence_ng:
         with pytest.raises(ValueError):
-            Inputter.Sentence(s)
+            Interpreter.Sentence(s)
 
 
 def test_sentence_class_initialize_ok(sentence_ok):
     for s in sentence_ok:
-        assert Inputter.Sentence(s) == s
+        assert Interpreter.Sentence(s) == s

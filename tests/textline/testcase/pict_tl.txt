@@ -1,0 +1,5 @@
+term1: space, nl, text
+term2: space, nl, text
+term3: space, nl, text
+term4: space, nl, text
+term5: space, nl, text

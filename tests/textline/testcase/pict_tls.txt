@@ -1,0 +1,3 @@
+term1: empty, text
+term2: empty, text
+term3: empty, text

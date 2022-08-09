@@ -8,23 +8,23 @@ from re import Pattern
 import pytest
 
 sys.path.append(os.path.join(".", "scr"))
-from Inputter import Inputter  # type: ignore
+from Interpreter import Interpreter  # type: ignore
 
-# from scr.Inputter import Inputter
+# from scr.Interpreter import Interpreter
 
 
 @pytest.fixture
 def constants():
     class constants:
-        pat_none: Pattern = Inputter.Phrase.Pat.none
-        pat_all: Pattern = Inputter.Phrase.Pat.all
-        pat_help: Pattern = Inputter.Phrase.Pat.help
-        name_none: Inputter.Phrase.Name = Inputter.Phrase.Name.NONE
-        name_all: Inputter.Phrase.Name = Inputter.Phrase.Name.ALL
-        name_help: Inputter.Phrase.Name = Inputter.Phrase.Name.HELP
-        pat_digit: Pattern = Inputter.Digit.pat
-        pat_minus: Pattern = Inputter.Minus.pat
-        pat_range: Pattern = Inputter.Range.pat
+        pat_none: Pattern = Interpreter.Phrase.Pat.none
+        pat_all: Pattern = Interpreter.Phrase.Pat.all
+        pat_help: Pattern = Interpreter.Phrase.Pat.help
+        name_none: Interpreter.Phrase.Name = Interpreter.Phrase.Name.NONE
+        name_all: Interpreter.Phrase.Name = Interpreter.Phrase.Name.ALL
+        name_help: Interpreter.Phrase.Name = Interpreter.Phrase.Name.HELP
+        pat_digit: Pattern = Interpreter.Digit.pat
+        pat_minus: Pattern = Interpreter.Minus.pat
+        pat_range: Pattern = Interpreter.Range.pat
 
     return constants
 

@@ -9,7 +9,7 @@ from Text_Line import Text_Line, Text_Lines
 class ICleaner(metaclass=abc.ABCMeta):
     @abc.abstractclassmethod
     def __init__(self) -> None:
-        self.lines: Text_Lines = Text_Lines()
+        raise NotImplementedError
 
     def read_text(self, text: str | list[str]):
         self.lines = Text_Lines(text)
@@ -46,13 +46,13 @@ class ICleaner(metaclass=abc.ABCMeta):
 
 
 class Cleaner(ICleaner):
-    dust_phrase: str = "dust_start"
+    dust_pos: str = "dust_start"
 
     def __init__(
         self,
         dust_pre_defined: list[str] = ["\\.", "\\s"],
         dust_possible: str = "[a-zA-Z0-9]",
-        lead_exp: str = "(?<=[A-Z0-9\\s][A-Za-z0-9\\s])\\S*?",
+        lead_exp: str = "(?P<dust_start>[^A-Z])(?<![A-Z])[^A-Z]*?\\s?",
         dust_rep: int = 3,
     ) -> None:
         self.dust_major: list[str] = dust_pre_defined
@@ -64,72 +64,58 @@ class Cleaner(ICleaner):
     def get_dust_characters(self) -> list[str]:
         # pre-defined major pattern
         # dust pattern
-        pat = re.compile(f"[A-Z].*({self.dust_possible})\\1{2,}")
+        pat = re.compile("(?<=[A-Z]).*?" + "(" + f"{self.dust_possible}" + ")\\1{2,}")
         dust_redundant: list[str] = re.findall(pat, self.lines.to_text())
-        dust: list[str] = []
-        for d in dust_redundant:
-            if d not in self.dust_major and d not in dust:
-                dust.append(d)
-        return dust
+        return sorted(set(dust_redundant).difference(self.dust_major))
 
     def get_page_number(self, line: Text_Line) -> str:
         page_regex = "(?:[0-9]*)$|(?:[ixv]*)$|(?:[IXV]*)$"
         pat = re.compile(page_regex)
         return re.findall(pat, line.text)[0]
 
-    def get_dust_expression(self) -> str:
+    def get_dust_expression(
+        self,
+        what_precede: str = "(?<=[a-zA-Z\\s])",
+        what_not_follow: str = "(?!\\s?[A-Z])",
+        rep_default: int = 3,
+        add_weight: int = 1,
+        dust_care: list[str] = ["e", "s"],
+    ) -> str:
         """
         get pre-regex string for leading text + dusts + page_number.
         dust + page_number part is accessible by 'dust_start' keyword
         via Match object.
         """
-        dust_care: list[str] = ["e"]
+
+        def _get_repeat_exp(dust1: str, dust2: str) -> str:
+            # prevent words end with double 's' and 'e' such as "Fr[ee ]", "Succe[ss ]" from being hit
+            r: int = rep_default + add_weight if dust1 in dust_care or dust2 in dust_care else rep_default
+            rep_exp: str = "{" + f"{r}" + ",}"
+            return f"[{dust1}{dust2}]{rep_exp}"  # like [\\s,\\.]{3,}
+
         dust_exps: list[str] = []
+        # first, craft dust patterns from pre-defined dust pattern
+        for i, d1 in enumerate(self.dust_major):
+            for j, d2 in enumerate(self.dust_major):
+                if i > j:
+                    dust_exps.append(
+                        _get_repeat_exp(
+                            dust1=d1,
+                            dust2=d2,
+                        )
+                    )
         for d in self.get_dust_characters():
-            r: int = self.dust_rep + 1 if d in dust_care else self.dust_rep
-            rep_exp: str = "{" f"{r}" + ",}"
-            dust_exps.append("|".join([f"[{d}{dm}]" + rep_exp for dm in self.dust_major]))
-        # dust_exps: list[str] = [
-        #     "|".join([f"[{d}{dm}]" + rep_exp for dm in self.dust_major]) for d in self.get_dust_characters()
-        # ]
-        dust_exp = "(?P<" + Cleaner.dust_phrase + ">\\s?(" + "|".join(dust_exps) + ").*)"
+            dust_exps.append("|".join([_get_repeat_exp(d, dm) for dm in self.dust_major]))
+        dust_exp = f'(?=\\s?{"|".join(dust_exps)})'
         # resulting pattern looks like
-        # '(?<=[A-Z0-9])(\S*?)(?P<dust_phrase>\s?([e\s]{3,}|[e\.]{3,}|[\.\s]{3,}|[\.0\s]){3,}.*)()'
-        return self.lead_exp + dust_exp
+        # (?<=[a-zA-Z\s])(?=\s?[\s\.]{3,}|[0\.]{3,}|...|[e\s]{4,})(?!\s?[A-Z]).*
+        return what_precede + dust_exp + f"(?P<{self.dust_pos}>.*)" + what_not_follow
 
     def remove_dusts(self) -> Text_Lines:
         pat: Pattern = re.compile(self.get_dust_expression())
 
-        def line_processor(m: list[Match], line: Text_Line) -> str:
-            dust_border: int = m[0].start(Cleaner.dust_phrase)
+        def line_processor(ms: list[Match], line: Text_Line) -> str:
+            dust_border: int = min([m.start(Cleaner.dust_pos) for m in ms])
             return line.text[:dust_border] + " " + self.get_page_number(line)
 
         return self.apply_each_line(pat, line_processor)
-
-
-class Spacer(ICleaner):
-    def __init__(self) -> None:
-        self.lines: Text_Lines = Text_Lines()
-
-    def _remove_leading_spaces(self) -> Text_Lines:
-        """remove leading spaces on each line (if exist), and return the removed lines."""
-        pat: Pattern = re.compile("^\\s*(?P<body>\\S.*)")
-        return self.apply_each_line(pat, lambda m, _: m[0].group("body"))
-
-    def _remove_tail_spaces(self) -> Text_Lines:
-        """remove tail spaces on each line (if exist), and return the removed lines."""
-        pat: Pattern = re.compile("(?P<body>.*\\S)\\s*$")
-        return self.apply_each_line(pat, lambda m, _: m[0].group("body"))
-
-    def _is_blank_line(self, line: Text_Line) -> bool:
-        pat: Pattern = re.compile("^\\s*$")
-        return list(re.finditer(pat, line.text)) != []
-
-    def remove_blank_lines(self) -> Text_Lines:
-        rows: list[int] = [line.idx for line in self.lines if not self._is_blank_line(line)]
-        return self.lines.select(rows=rows)
-
-    def remove_redundant_spaces(self) -> Text_Lines:
-        s = Spacer()
-        s.read_lines(self._remove_leading_spaces())
-        return s._remove_tail_spaces()

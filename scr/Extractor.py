@@ -42,6 +42,9 @@ class Extractor:
     def has_page_number(self, line: Text_Line) -> bool:
         return (num := self.get_page_number(line)) != "" and num != " "
 
+    def test_front_matter_number(self, text: str) -> bool:
+        return re.findall(r"\s?[ixv]+|\s?[IXV]+", text) != []
+
     def is_front_matter(self, line: Text_Line) -> bool:
         """
         yes if line has a page number like iii or iv or xii.
@@ -50,7 +53,7 @@ class Extractor:
         """
         if not self.has_page_number(line):
             raise Exception("No page number found.")
-        return re.findall(r"\s[ixv]+$|\s[IXV]+$", line.text) != []
+        return re.findall(r"\s?[ixv]+$|\s?[IXV]+$", line.text) != []
 
     def get_non_numbered_pages(self) -> Text_Lines:
         return Text_Lines([line for line in self.lines if not self.has_page_number(line)])
@@ -70,7 +73,13 @@ class Extractor:
             for i, line in enumerate(self.lines[main_head:])
             if self.has_page_number(line) and self.is_front_matter(line)
         ]
-        return Text_Lines(self.lines).select(ill_idx)
+        return Text_Lines(self.lines).select(ill_idx) + self._get_pages_start_with_front_matter_number()
+
+    def _get_pages_start_with_front_matter_number(self) -> Text_Lines:
+        front_numbered: list[int] = [
+            line.idx for line in self.lines if self.test_front_matter_number(line.get_words_at(0))
+        ]
+        return self.lines.select(front_numbered)
 
     def __is_well_ordered(self, a: int, b: int, c: int) -> bool:
         """is the center value b has a possible value relative to a and c.
@@ -142,8 +151,3 @@ class Extractor:
             if self.has_page_number(line) and not self.is_front_matter(line):
                 return int(self.get_page_number(line))
         return -1
-
-
-if __name__ == "__main__":
-    with open("../sample/MCSM.txt") as f:
-        text = f.read()
