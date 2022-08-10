@@ -8,7 +8,7 @@
 !/scr/Cleaner.py
 !/scr/collect_zip.py
 !/scr/Extractor.py
-!/scr/Inputter.py
+!/scr/Interpreter.py
 !/scr/Selector.py
 !/scr/Text_Line.py
 !/scr/Type_Alias.py

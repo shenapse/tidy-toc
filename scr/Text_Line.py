@@ -52,8 +52,9 @@ class Text_Line:
             raise ValueError(f"text must admit no newline character. text={text}")
         return True
 
-    def get_words_at(self, at_n_th: int) -> str:
-        return self.text.split(self.sep)[at_n_th]
+    def get_words_at(self, at_n_th: int, strip: bool = True) -> str:
+        pre_strip: str = self.text.split(self.sep)[at_n_th]
+        return pre_strip.strip() if strip else pre_strip
 
     def get_number_of_words(self) -> int:
         return len(self.text.split(self.sep))

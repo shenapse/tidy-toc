@@ -69,7 +69,7 @@ def test2(text: list[str]) -> Text_Lines:
     inter = Interpreter(range_max=max_line)
     prompt = Prompt()
     e = Extractor(text)
-    lines_cand: Text_Lines = e.get_digit_only_lines() + e.get_unexpected_front_matter_pages()
+    lines_cand: Text_Lines = e.get_digit_only_lines() + e.get_unexpected_front_matter_lines()
     ls = Line_Selector(lines_cand, max_line=10)
     lines_to_delete: Text_Lines = ls.select_lines_to_delete(inter=inter, prompt=prompt)
     return Text_Lines(text) - lines_to_delete
@@ -80,7 +80,9 @@ def test(text: list[str]) -> Text_Lines:
     inter = Interpreter(range_max=max_line)
     prompt = Prompt()
     e = Extractor(text)
-    lines_cand: Text_Lines = e.get_digit_only_lines() + e.get_unexpected_front_matter_pages()
+    lines_cand: Text_Lines = (
+        e.get_lines_with_unexpected_header()
+    )  # + e.get_digit_only_lines() + e.get_unexpected_front_matter_lines()
     ls = Line_Selector(lines_cand, max_line=10)
     lines_to_delete: Text_Lines = ls.select_lines_to_delete(inter=inter, prompt=prompt)
     return Text_Lines(text) - lines_to_delete
@@ -90,7 +92,7 @@ def main():
     with open("./scr/Algebra_clean.txt") as f:
         text = f.read()
         res: Text_Lines = test(text.splitlines())
-        res.print()
+        res.print(end=30)
         # with open("./scr/MCSM_clean.txt", mode="w") as tf:
         #     tf.write(res.to_text())
 
