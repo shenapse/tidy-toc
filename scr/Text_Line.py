@@ -74,19 +74,16 @@ class Text_Line:
 
 class Text_Lines(list[Text_Line]):
     def __init__(self, text: str | list[str] | list[Text_Line] = ""):
-        if text != "":
-            if isinstance(text, str):
-                # if plain text, split and construct list[Text_Line]
-                super().__init__(self.__get_pre_Text_Lines(text))
-            elif self.__is_list_Text_Line(text):
-                super().__init__(text)
-                self.sort()
-            elif self.__is_list_str(text):
-                super().__init__(self.__get_pre_Text_Lines(text))
-            else:
-                raise Exception(f"invalid type: text = {type(text)}")
+        if self.__is_list_str(text):
+            super().__init__(self.__get_pre_Text_Lines(text))
+        elif self.__is_list_Text_Line(text):
+            super().__init__(text)
+            self.sort()
+        elif isinstance(text, str):
+            # if plain text, split and construct list[Text_Line]
+            super().__init__(self.__get_pre_Text_Lines(text))
         else:
-            super().__init__()
+            raise Exception(f"invalid type: text = {type(text)}")
 
     def __add__(self, other: Text_Lines) -> Text_Lines:
         """take union of two Text_Lines"""
@@ -116,6 +113,9 @@ class Text_Lines(list[Text_Line]):
 
     def is_empty(self) -> bool:
         return len(self) == 0
+
+    def is_nonempty(self) -> TypeGuard[Text_Lines]:
+        return len(self) != 0
 
     def print(self, start: int = 0, end: int = -1, with_page_idx: bool = True, with_header: bool = True):
         """print continuous part of text lines.
