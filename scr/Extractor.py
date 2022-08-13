@@ -4,8 +4,6 @@ import re
 from enum import IntEnum, auto
 from typing import Final
 
-from rich import print
-
 from Text_Line import Text_Line, Text_Lines
 
 
@@ -17,8 +15,9 @@ class Extractor:
 
     def __init__(self, text: list[str] | str | Text_Lines = []) -> None:
         # lines of text edit
+        self.lines: Text_Lines = Text_Lines()
         if isinstance(text, Text_Lines):
-            self.lines: Text_Lines = text
+            self.lines = text
         elif isinstance(text, (list, str)):
             self.lines = Text_Lines(text)
         else:
@@ -135,20 +134,16 @@ class Extractor:
             if header_type == self.Header.DIGIT:
                 digits_cur: list[str] = self._get_digit_header(header)
                 if not self._digits_in_this_order(digits_last, digits_cur):
-                    print(f"line={line.idx} header={header}  d_last={digits_last} d_cur={digits_cur}")
-                    rows.append(line.idx)
-                digits_last = digits_cur
+                    digits_last = digits_cur
                 # init back
                 abc_last = abc_init
             elif header_type == self.Header.ALPHABET:
                 abc_cur: str = self._get_abc_header(header)
                 if not self._abc_in_this_order(abc_last, abc_cur):
-                    print(f"line={line.idx} header={header} abc_last={abc_last} abc_cur={abc_cur}")
                     rows.append(line.idx)
                 abc_last = abc_cur
                 # not init digit
             else:
-                print(f"line={line.idx} neither header = {header}")
                 rows.append(line.idx)
         return self.lines.select(rows=rows)
 
