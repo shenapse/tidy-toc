@@ -1,7 +1,8 @@
 from rich import print
 
 from Extractor import Extractor, Text_Lines
-from Interpreter import Interpreter, Prompt
+from Interpreter import Interpreter
+from Prompt import Prompt
 
 
 class Line_Selector:
@@ -53,7 +54,7 @@ class Line_Selector:
             with_header: bool = set == 0
             self.lines.print(start, end, with_header=with_header, with_page_idx=False)
             # ask user to enter line indexes to delete
-            prompt.prompt(inter=inter, msg=f"({i+1}/{total}): Enter N to delete (n/-n/m-n/a[ll]/n[one])")
+            prompt.prompt(inter=inter, msg=f"({i+1}/{total}): Enter N to delete (n/-n/m-n/a[ll]/n[one]/[h]elp)")
             # convert selected list of integer like [0,1,4,6] to corresponding row idx of lines such as [20, 21, 24, 26]
             choice_in_range: list[int] = sorted(prompt.input.intersection(self._get_effective_range(n_th_zero_start=i)))
             selected_row_idx: list[int] = self._get_corresponding_row_idx_in_lines(i, choice_in_range)
@@ -86,16 +87,3 @@ def test(text: list[str]) -> Text_Lines:
     ls = Line_Selector(lines_cand, max_line=10)
     lines_to_delete: Text_Lines = ls.select_lines_to_delete(inter=inter, prompt=prompt)
     return Text_Lines(text) - lines_to_delete
-
-
-def main():
-    with open("./scr/Algebra_clean.txt") as f:
-        text = f.read()
-        res: Text_Lines = test(text.splitlines())
-        res.print(end=30)
-        # with open("./scr/MCSM_clean.txt", mode="w") as tf:
-        #     tf.write(res.to_text())
-
-
-if __name__ == "__main__":
-    main()
