@@ -50,12 +50,12 @@ def get_filtered_textlines(
     return tls
 
 
-def tidy_toc(
+def tidy(
     text_file: Path | str,
     clean_dust: bool = True,
     select_line: bool = True,
     max_line: int = 10,
-    dir: Path | None = None,
+    dir: Path | str | None = None,
     prefix: str = "",
     suffix: str = "_cleand",
     join_with: str = "",
@@ -68,7 +68,7 @@ def tidy_toc(
             text_lines=Text_Lines(text), clean_dust=clean_dust, select_line=select_line, max_line=max_line
         ).to_text()
         # saving procedure
-        dir_out: Path = file.parent if dir is None else dir
+        dir_out: Path = file.parent if dir is None else Path(dir)
         saved_file, success = save_text(
             text=text_cleaned,
             dir_out=dir_out,
@@ -80,4 +80,4 @@ def tidy_toc(
 
 
 if __name__ == "__main__":
-    tidy_toc("./sample/Algebra.txt")
+    tidy("./sample/Algebra.txt")
