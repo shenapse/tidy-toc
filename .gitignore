@@ -3,14 +3,15 @@
 /.venv
 /sample
 /scr/*
-/
 /**/__pycache__
 !/scr/Cleaner.py
 !/scr/collect_zip.py
 !/scr/Extractor.py
 !/scr/Interpreter.py
+!/scr/Prompt.py
 !/scr/Selector.py
 !/scr/Text_Line.py
 !/scr/Type_Alias.py
-!/tests/inputter/
+!/scr/tidy-toc.py
+!/scr/main.py
 /**/.pytest_cache
