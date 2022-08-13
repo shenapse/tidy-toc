@@ -1,4 +1,5 @@
 import abc
+from traceback import print_tb
 
 import click
 from rich import print
@@ -27,6 +28,17 @@ class Prompt(_Input):
     def get_input(self) -> list[int]:
         return sorted(self.input)
 
+    def _get_highlighted(self, text: str, color: str = "magenda") -> str:
+        return f"[{color}]{text}[/]"
+
+    def print_help(self, highlight: str = "magenda") -> None:
+        print("Inputs are interpreted sequentially from left to right.")
+        print(f"1 6 4   ->   {self._get_highlighted('[1, 4, 6]', color=highlight)}")
+        print(f"3-6     ->   {self._get_highlighted('[3, 4, 5, 6]', color=highlight)}")
+        print(f"2-5 -4  ->   {self._get_highlighted('[2, 3, 5]', color=highlight)}")
+        print(f"n       ->   {self._get_highlighted('[]', color=highlight)}")
+        print(f"all     ->   {self._get_highlighted('all listed numbers', color=highlight)}")
+
     def prompt(self, inter: Interpreter, msg: str = "") -> None:
         """ask user to type input in CLI repeatedly until it gets a valid one."""
         while True:
@@ -48,8 +60,14 @@ class Prompt(_Input):
             if ng_words != []:
                 print(f"invalid input found.{','.join(ng_words)}")
                 continue
-            res_interpreted: set[int] | inter.Phrase.Name = inter.interpret(sentence)
+            interpreted: set[int] | inter.Phrase.Name = inter.interpret(sentence)
             # check if input contains a dominant phrase
-            if isinstance(res_interpreted, set):
-                self._input = res_interpreted
+            if isinstance(interpreted, inter.Phrase.Name):
+                # get a dominant phrase HELP
+                self.print_help()
+            elif isinstance(interpreted, set):
+                if not inter._is_in_range(interpreted):
+                    print(f"input must be included in range={inter.range}")
+                    continue
+                self._input = interpreted
                 break

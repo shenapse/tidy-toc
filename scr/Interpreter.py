@@ -225,10 +225,6 @@ class Interpreter:
             raise ValueError(f"No dominant phrase are found in {sentence}")
         return d_phrases[0]
 
-    def print_help(self) -> None:
-        """show help typically triggered by help phrase."""
-        print("help!")
-
     def _list_valid_characters(self) -> set[str]:
         """get the possible characters for input. It is defined as the set {numerical characters in range} | {space and -} | {characters in phrase}."""
         # default set consists of numerical characters and space and -.
@@ -278,16 +274,10 @@ class Interpreter:
         return wrt
 
     def interpret(self, sentence: Sentence) -> set[int] | Phrase.Name:
-        # check length and characters
-        # if not self.test_valid_length(sentence):
-        #     raise ValueError(f"Invalid length. length > {self._get_maximum_valid_length()}.")
-        # elif not self.test_valid_words(sentence):
-        #     raise ValueError(f"Invalid characters. Use from {self.valid_words}.")
         # check exist dominant phrase
         if self._exist_dominant_phrase(sentence):
             phrase: Interpreter.Phrase.Name = self._find_most_dominant_phrase(sentence)
             if phrase == Interpreter.Phrase.Name.HELP:
-                self.print_help()
                 return phrase
             else:
                 raise ValueError(f"Unknown dominant phrase {phrase}.")
