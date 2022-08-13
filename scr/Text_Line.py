@@ -40,8 +40,8 @@ class Text_Line:
         """remove leading and trailing spaces and newline."""
         return text.strip()
 
-    def format_space(self) -> None:
-        self.text = " ".join([t for t in self.text.split(" ") if t != ""])
+    def format_space(self) -> Text_Line:
+        return Text_Line(idx=self.idx, text=" ".join([t for t in self.text.split(" ") if t != ""]))
 
     def _has_newline(self, text: str) -> bool:
         return len(lines := text.splitlines()) != 0 and lines[0] != text
@@ -208,3 +208,6 @@ class Text_Lines(list[Text_Line]):
     def remove_blank_rows(self) -> Text_Lines:
         rows: list[int] = [line.idx for line in self if not line.is_empty()]
         return self.select(rows=rows)
+
+    def format_space(self) -> Text_Lines:
+        return Text_Lines([line.format_space() for line in self])

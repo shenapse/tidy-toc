@@ -27,17 +27,18 @@ class Line_Selector:
         return [self.lines.get_row_idx(i + idx_start) for i in idx]
 
     def _get_effective_range(self, n_th_zero_start: int) -> set[int]:
-        """get the"""
         length: int = len(self.lines)
         number_of_remaining_rows: int = length - self._get_starting_idx(n_th_zero_start)
         return set(range(0, min(self.max_line, number_of_remaining_rows)))
 
     def _validate_same_range(self, inter: Interpreter) -> bool:
+        """assert selector and interpreter instance has the same size of max line and range."""
         if self.max_line != len(inter.range):
             raise ValueError(f"self.max_line={self.max_line} while inter.range = {inter.range}")
         return True
 
     def select_lines_to_delete(self, inter: Interpreter, prompt: Prompt) -> Text_Lines:
+        """select interactively bad lines and return it."""
         self._validate_same_range(inter=inter)
         L: int = len(self.lines)
         print(f"{L} cases found.")
@@ -56,7 +57,6 @@ class Line_Selector:
             # convert selected list of integer like [0,1,4,6] to corresponding row idx of lines such as [20, 21, 24, 26]
             choice_in_range: list[int] = sorted(prompt.input.intersection(self._get_effective_range(n_th_zero_start=i)))
             selected_row_idx: list[int] = self._get_corresponding_row_idx_in_lines(i, choice_in_range)
-            print(f"range={inter.range}")
             print(f"select [magenta]{choice_in_range}[/]")
             # print(f"delete {selected_row_idx}")
             delete_idx.extend(selected_row_idx)
@@ -66,7 +66,7 @@ class Line_Selector:
 # testing
 def test2(text: list[str]) -> Text_Lines:
     max_line: int = 10
-    inter = Interpreter(range_max=max_line)
+    inter = Interpreter(range_size=max_line)
     prompt = Prompt()
     e = Extractor(text)
     lines_cand: Text_Lines = e.get_digit_only_lines() + e.get_unexpected_front_matter_lines()
@@ -77,7 +77,7 @@ def test2(text: list[str]) -> Text_Lines:
 
 def test(text: list[str]) -> Text_Lines:
     max_line: int = 10
-    inter = Interpreter(range_max=max_line)
+    inter = Interpreter(range_size=max_line)
     prompt = Prompt()
     e = Extractor(text)
     lines_cand: Text_Lines = (
