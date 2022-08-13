@@ -188,7 +188,7 @@ def interpret_sentence_ok_mixed(max_line: int) -> list[tuple[str, list[int]]]:
 def test_interpret_ng_on_invalid_characters(invalid_characters, invalid_characters_mixed):
     inp = Interpreter(range_max=20)
     for s in invalid_characters_mixed + invalid_characters:
-        assert not inp._test_valid_words(sentence=Interpreter.Sentence(s))
+        assert not inp.test_valid_characters(sentence=Interpreter.Sentence(s))
 
 
 def test_interpret_ng_on_uninterpretable(uninterpretable_sentence):
@@ -196,7 +196,7 @@ def test_interpret_ng_on_uninterpretable(uninterpretable_sentence):
     for s in uninterpretable_sentence:
         # this uses valid characters but uninterpretable
         if not s == " ":  # space only character is forbidden by sentence class
-            assert inp._test_valid_words(sentence=Interpreter.Sentence(s))
+            assert inp.test_valid_characters(sentence=Interpreter.Sentence(s))
         with pytest.raises(ValueError):
             inp._interpret(sentence=Interpreter.Sentence(s))
 

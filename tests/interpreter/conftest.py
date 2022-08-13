@@ -31,7 +31,7 @@ def constants():
 
 @dataclasses.dataclass
 class test_data_file:
-    root: Path = Path("./tests/inputter/test_case/")
+    root: Path = Path("./tests/interpreter/test_case/")
     digit_ok_file = root / "digit_ok.csv"
     minus_ok_file: Path = root / "minus_ok.csv"
     range_ok_file: Path = root / "range_ok.csv"
