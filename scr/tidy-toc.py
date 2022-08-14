@@ -6,15 +6,54 @@ from main import tidy
 # just decorating core functions in main.py
 
 
-@click.command()
+@click.command(help="clean OCRed ToC text data.")
 @click.argument("text_file", type=click.Path(exists=True, dir_okay=False))
-@click.option("-c", "--clean", type=bool, is_flag=True)
-@click.option("-s", "--select", type=bool, is_flag=True)
-@click.option("-m", "--maxline", type=int, default=10)
-@click.option("-d", "--dirout", type=click.Path(file_okay=False))
-@click.option("--pre", default="", type=str)
-@click.option("--suf", default="_cleaned", type=str)
-@click.option("-j", "--join", default="", type=str)
+@click.option(
+    "-c",
+    "--clean",
+    type=bool,
+    is_flag=True,
+    help="remove useless characters such as the long series of periods between text and page number, e.g., 'Introduction [.........,..,,.,..] 1'",
+)
+@click.option(
+    "-s",
+    "--select",
+    type=bool,
+    is_flag=True,
+    help="suggest unnecessary lines, such as such as 'xii', 'iv Contents', and ask user to select from them interactively.",
+)
+@click.option(
+    "-m",
+    "--maxline",
+    type=int,
+    default=10,
+    help="the number of suggested lines displayed at once in the --select process. the default uses 10. ignored unless --select option is enabled.",
+)
+@click.option(
+    "-d",
+    "--dirout",
+    type=click.Path(file_okay=False),
+    help="directory where output text file is to be saved. the default uses the same place as the input text file.",
+)
+@click.option(
+    "--pre",
+    default="",
+    type=str,
+    help="prefix for the stem-name of the output text file. the default is ''. see --join option.",
+)
+@click.option(
+    "--suf",
+    default="_cleaned",
+    type=str,
+    help="suffix for the stem-name of the output text file. the default is '_cleaned'. see --join option.",
+)
+@click.option(
+    "-j",
+    "--join",
+    default="",
+    type=str,
+    help="the character with which prefix + (text file name) + suffix are combined. e.g., prefix='pre', text file name='sample.txt', suffix='suf', join='_' -> output text file name='pre_sample_suf.txt'",
+)
 def tidy_toc(
     text_file: str,
     clean: bool,
