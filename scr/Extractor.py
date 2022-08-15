@@ -132,9 +132,12 @@ class Extractor:
             header: str = line.get_words_at(at_n_th=0)
             header_type = self._get_header_type(header)
             if header_type == self.Header.DIGIT:
+                # this looks like ['1','13','5']
                 digits_cur: list[str] = self._get_digit_header(header)
                 if not self._digits_in_this_order(digits_last, digits_cur):
-                    digits_last = digits_cur
+                    rows.append(line.idx)
+                # record the latest digits
+                digits_last = digits_cur
                 # init back
                 abc_last = abc_init
             elif header_type == self.Header.ALPHABET:
