@@ -33,7 +33,7 @@ from main import tidy
     "-d",
     "--dirout",
     type=click.Path(file_okay=False),
-    help="directory where output text file is to be saved. the default uses the same place as the input text file.",
+    help="directory where output text file is saved. the default uses the same place as the input text file.",
 )
 @click.option(
     "--pre",
@@ -54,6 +54,13 @@ from main import tidy
     type=str,
     help="the character with which prefix + (text file name) + suffix are combined. e.g., prefix='pre', text file name='sample.txt', suffix='suf', join='_' -> output text file name='pre_sample_suf.txt'",
 )
+@click.option(
+    "-o",
+    "--overwrite",
+    type=bool,
+    is_flag=True,
+    help="overwrite input file with output. If this enabled, all options for output file name such as --pre and --join are ignored.",
+)
 def tidy_toc(
     text_file: str,
     clean: bool,
@@ -63,6 +70,7 @@ def tidy_toc(
     pre: str,
     suf: str,
     join: str,
+    overwrite: bool,
 ) -> None:
     tidy(
         text_file=text_file,
@@ -73,6 +81,7 @@ def tidy_toc(
         prefix=pre,
         suffix=suf,
         join_with=join,
+        overwrite=overwrite,
     )
 
 

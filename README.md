@@ -30,17 +30,12 @@ xiv Contents <- THIS!
 
 ## Demo
 
-The demo.gif shows you
+The demo.gif shows you how the process of interactive cleaning goes.
+The input and output text file are at [input sample](/sample/table_of_contents_OCRed.txt) and at [output sample](/sample/table_of_contents_OCRed_cleaned.txt).
 
-- how dirt the sample file is
-- how the process of interactive cleaning goes
-- how much the output text file has been improved
+<img src="sample/demo.gif" width="800">
 
-The input text file is at [input sample](/sample/table_of_contents_OCRed.txt) and the output is at [output sample](/sample/table_of_contents_OCRed_cleaned.txt).
-
-<img src="sample/demo.gif" width="600">
-
-The text file used here is an OCRed (by tesseract) table of contents of a book [Monte Carlo Statistical Methods](https://link.springer.com/book/10.1007/978-1-4757-4145-2).
+The sample file used here is an OCRed (by tesseract) table of contents of a book [Monte Carlo Statistical Methods](https://link.springer.com/book/10.1007/978-1-4757-4145-2).
 
 ## Install
 
@@ -114,6 +109,9 @@ The following command shows help.
 #                           suffix are combined. e.g., prefix='pre', text file
 #                           name='sample.txt', suffix='suf', join='_' -> output
 #                           text file name='pre_sample_suf.txt'
+#   -o, --overwrite         overwrite input file with output. If this enabled,
+#                           all options for output file name such as --pre and
+#                           --join are ignored.
 #   --help                  Show this message and exit.
 ```
 

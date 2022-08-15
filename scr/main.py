@@ -30,7 +30,7 @@ def get_filtered_textlines(
     select_line: bool = True,
     max_line: int = 10,
 ) -> Text_Lines:
-    tls: Text_Lines = text_lines
+    tls: Text_Lines = text_lines.remove_blank_rows().format_space()
     if clean_dust:
         c = Cleaner()
         c.read_lines(text_lines)
@@ -47,7 +47,7 @@ def get_filtered_textlines(
             prompt = Prompt()
             ls = Line_Selector(tls_ex, max_line=max_line)
             tls = tls - ls.select_lines_to_delete(inter, prompt)
-    return tls
+    return tls.remove_blank_rows().format_space()
 
 
 def tidy(
@@ -57,8 +57,9 @@ def tidy(
     max_line: int = 10,
     dir: Path | str | None = None,
     prefix: str = "",
-    suffix: str = "_cleand",
+    suffix: str = "_cleaned",
     join_with: str = "",
+    overwrite: bool = False,
 ) -> Path:
     file: Path = Path(text_file)
     with open(file) as f:
@@ -71,13 +72,11 @@ def tidy(
         dir_out: Path = file.parent if dir is None else Path(dir)
         saved_file, success = save_text(
             text=text_cleaned,
-            dir_out=dir_out,
-            name_out=get_new_file_name(file=file, prefix=prefix, suffix=suffix, join_with=join_with),
+            dir_out=file.parent if overwrite else dir_out,
+            name_out=file.name
+            if overwrite
+            else get_new_file_name(file=file, prefix=prefix, suffix=suffix, join_with=join_with),
         )
         if not success:
             raise Exception(f"failed to save {str(saved_file)}.")
         return saved_file
-
-
-if __name__ == "__main__":
-    tidy("./sample/Algebra.txt")
