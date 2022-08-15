@@ -1,6 +1,7 @@
 # ignore .history directory that is created by vscode extension
 /.history
 /.venv
+/poetry.lock
 /sample/*
 !/sample/demo.gif
 !/sample/table_of_contents*.txt

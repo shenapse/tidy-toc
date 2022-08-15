@@ -10,14 +10,14 @@ Preface to the First Edition XIII
 1.4.2 Integration 21
 1.4.3 Comparison 2.0.0.0... 0.
 1.5 Problems 23
-1.6 Notes  80
+1.6 Notes 80
 1.6.1. Prior Distributions 80
 1.6.2 Bootstrap Methods 82
 2 Random Variable Generation 35
 2.1 Introduction
 2.1.1 Uniform Simulation 86
 2.1.2 The Inverse Transform 38
-2.1.3 Alternatives  40
+2.1.3 Alternatives 40
 2.1.4 Optimal Algorithms 41
 2.2 General Transformation Methods 42
 2.3 Accept-Reject Methods
@@ -70,7 +70,7 @@ Preface to the First Edition XIII
 5.3.3 Monte Carlo EM 183
 5.3.4. EM Standard Errors 186
 5.4 Problems 188
-5.5 Notes  200
+5.5 Notes 200
 5.5.1 Variations on EM 200
 5.5.2 Neural Networks 201
 5.5.3 The Robbins-Monro procedur 201
@@ -91,7 +91,7 @@ Preface to the First Edition XIII
 6.5.2 Kac’s Theorem 224
 6.5.3 Reversibility and the Detailed Balance Condition 229
 6.6 Ergodicity and Convergence 231
-6.6.1 Ergodicity  281
+6.6.1 Ergodicity 281
 6.6.2 Geometric Convergence 236
 6.6.3 Uniform Ergodicity 237
 6.7 Limit Theorems 238
@@ -119,7 +119,6 @@ Preface to the First Edition XIII
 7.6.2 Conditioning and Accelerations 295
 7.6.3 Adaptive Schemes 299
 7.7 Problems
-0) =< ES 3
 7.8.1 Background of the Metropolis Algorithm 313
 7.8.2 Geometric Convergence of Metropolis—Hastings
 Algorithms 2.0.0.0... 0c
@@ -173,7 +172,7 @@ Algorithms 2.0.0.0... 0c
 10.6.3 Nonparametric Mixtures 420
 10.6.4 Graphical Models 422
 11 Variable Dimension Models and Reversible Jump
-Algorithms 1.0.0.0...  425
+Algorithms 1.0.0.0... 425
 11.1 Variable Dimension Models 425
 11.1.1 Bayesian Model Choic 426
 11.1.2 Difficulties in Model Choic 427
@@ -254,7 +253,7 @@ B.1 Mathematical 85
 B.2. Probability 086
 B.3 Distributions 586
 B.4 Markov Chains 87
-B.5 Statistics  088
+B.5 Statistics 088
 B.6 Algorithms 088
 References
 Index of Names 623
