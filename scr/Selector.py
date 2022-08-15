@@ -44,7 +44,7 @@ class Line_Selector:
         L: int = len(self.lines)
         print(f"{L} cases found.")
         delete_idx: list[int] = []
-        total: int = L // self.max_line + 1
+        total: int = L // self.max_line
         for i in range(0, total):
             start: int = i * self.max_line
             end: int = min((i + 1) * self.max_line, L)
@@ -58,7 +58,7 @@ class Line_Selector:
             # convert selected list of integer like [0,1,4,6] to corresponding row idx of lines such as [20, 21, 24, 26]
             choice_in_range: list[int] = sorted(prompt.input.intersection(self._get_effective_range(n_th_zero_start=i)))
             selected_row_idx: list[int] = self._get_corresponding_row_idx_in_lines(i, choice_in_range)
-            print(f"select [magenta]{choice_in_range}[/]")
+            print(f"[magenta]{choice_in_range}[/] selected")
             # print(f"delete {selected_row_idx}")
             delete_idx.extend(selected_row_idx)
         return self.lines.select(rows=delete_idx)
