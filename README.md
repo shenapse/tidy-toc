@@ -45,20 +45,13 @@ The sample file used here is an OCRed (by tesseract) table of contents of a book
 
 Follow a typical routine of setting up a virtual environment by pyenv + poetry.
 
-Copy this project in some way, for instance, by git clone or create a repository from this template project.
-
 ```bash
 git clone https://github.com/Shena4746/tidy-toc.git
 cd ./tidy-toc
-```
-
-Enable python 3.10.5 at the top of the project directory. We do it simply by pyenv here.
-
-```bash
 pyenv local 3.10.5
 ```
 
-It fails if you have not downloaded python 3.10.5. Run the following to download it, and try the previous command again.
+The last line fails if you have not downloaded python 3.10.5. Run the following to download it, and try the previous pyenv command again.
 
 ```bash
 pyenv install 3.10.5
