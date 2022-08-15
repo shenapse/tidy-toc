@@ -30,15 +30,17 @@ xiv Contents <- THIS!
 
 ## Demo
 
-Watch the demo gif. The text file used here is an OCRed (by tesseract) table of contents of a book [Monte Carlo Statistical Methods](https://link.springer.com/book/10.1007/978-1-4757-4145-2).
-The input text file is at [input sample](/sample/table_of_contents_OCRed.txt) and the output is at [output sample](/sample/table_of_contents_OCRed_cleaned.txt).
-It shows you
+The demo.gif shows you
 
 - how dirt the sample file is
 - how the process of interactive cleaning goes
 - how much the output text file has been improved
 
+The input text file is at [input sample](/sample/table_of_contents_OCRed.txt) and the output is at [output sample](/sample/table_of_contents_OCRed_cleaned.txt).
+
 <img src="sample/demo.gif" width="600">
+
+The text file used here is an OCRed (by tesseract) table of contents of a book [Monte Carlo Statistical Methods](https://link.springer.com/book/10.1007/978-1-4757-4145-2).
 
 ## Install
 
