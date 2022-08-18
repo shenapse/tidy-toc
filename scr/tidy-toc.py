@@ -20,14 +20,21 @@ from main import tidy
     "--select",
     type=bool,
     is_flag=True,
-    help="suggest unnecessary lines, such as such as 'xii', 'iv Contents', and ask user to select from them interactively.",
+    help="suggest unnecessary lines, such as 'xii', 'iv Contents', and ask user to select from them interactively.",
 )
 @click.option(
     "-m",
+    "--merge",
+    type=bool,
+    is_flag=True,
+    help="suggest neighboring two lines that might be merged, such as '1.1 hello' followed by 'world 5.'",
+)
+@click.option(
+    "-l",
     "--maxline",
     type=int,
     default=10,
-    help="the number of suggested lines displayed at once in the --select process. the default uses 10. ignored unless --select option is enabled.",
+    help="the number of suggested lines displayed at once in the --select process. the default uses 10. will be ignored unless --select option is enabled.",
 )
 @click.option(
     "-d",
@@ -59,12 +66,13 @@ from main import tidy
     "--overwrite",
     type=bool,
     is_flag=True,
-    help="overwrite input file with output. If this enabled, all options for output file name such as --pre and --join are ignored.",
+    help="overwrite input file with output. If enabled, all options for output file name such as --pre and --join are ignored.",
 )
 def tidy_toc(
     text_file: str,
     clean: bool,
     select: bool,
+    merge: bool,
     maxline: int,
     dirout: str | None,
     pre: str,
@@ -76,6 +84,7 @@ def tidy_toc(
         text_file=text_file,
         clean_dust=clean,
         select_line=select,
+        merge_line=merge,
         max_line=maxline,
         dir=dirout,
         prefix=pre,
