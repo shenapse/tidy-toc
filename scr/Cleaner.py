@@ -3,7 +3,8 @@ import re
 from re import Match, Pattern
 from typing import Callable
 
-from Text_Line import Text_Line, Text_Lines
+from Text_Line import Paged_Text_Line
+from Text_Lines import Paged_Text_Lines
 
 
 class ICleaner(metaclass=abc.ABCMeta):
@@ -12,17 +13,17 @@ class ICleaner(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     def read_text(self, text: str | list[str]):
-        self.lines = Text_Lines(text)
+        self.lines = Paged_Text_Lines(text)
 
-    def read_lines(self, lines: Text_Lines | list[Text_Line]):
-        if isinstance(lines, Text_Lines):
+    def read_lines(self, lines: Paged_Text_Lines | list[Paged_Text_Line]):
+        if isinstance(lines, Paged_Text_Lines):
             self.lines = lines
         else:
-            self.lines = Text_Lines(lines)
+            self.lines = Paged_Text_Lines(lines)
 
     def apply_each_line(
-        self, pat: Pattern, func: Callable[[list[Match], Text_Line], str], skip_blank_line: bool = True
-    ) -> Text_Lines:
+        self, pat: Pattern, func: Callable[[list[Match], Paged_Text_Line], str], skip_blank_line: bool = True
+    ) -> Paged_Text_Lines:
         """get new lines derived by applying pat RegExp to each line and then func to the matched result.
 
         Args:
@@ -39,10 +40,10 @@ class ICleaner(metaclass=abc.ABCMeta):
                 new_lines.append(func(matches, line))
             elif skip_blank_line:
                 if not line.is_empty():
-                    new_lines.append(line.text)
+                    new_lines.append(line.to_text())
             else:
-                new_lines.append(line.text)
-        return Text_Lines(new_lines)
+                new_lines.append(line.to_text())
+        return Paged_Text_Lines(new_lines)
 
 
 class Cleaner(ICleaner):
@@ -59,23 +60,19 @@ class Cleaner(ICleaner):
         self.dust_possible: str = dust_possible
         self.lead_exp: str = lead_exp
         self.dust_rep: int = dust_rep
-        self.lines: Text_Lines = Text_Lines()
+        self.lines: Paged_Text_Lines = Paged_Text_Lines()
 
     def get_dust_characters(self) -> list[str]:
+        """scan whole text and find dust characters"""
         # pre-defined major pattern
         # dust pattern
         pat = re.compile("(?<=[A-Z]).*?" + "(" + f"{self.dust_possible}" + ")\\1{2,}")
-        dust_redundant: list[str] = re.findall(pat, self.lines.to_text())
+        dust_redundant: list[str] = re.findall(pat, self.lines.to_text(combine=False))
         return sorted(set(dust_redundant).difference(self.dust_major))
-
-    def get_page_number(self, line: Text_Line) -> str:
-        page_regex = "(?:[0-9]*)$|(?:[ixv]*)$|(?:[IXV]*)$"
-        pat = re.compile(page_regex)
-        return re.findall(pat, line.text)[0]
 
     def get_dust_expression(
         self,
-        what_precede: str = "(?<=[a-zA-Z\\s])",
+        what_precede: str = "(?<=[a-zA-Z\\s:])",
         what_not_follow: str = "(?!\\s?[A-Z])",
         rep_default: int = 3,
         add_weight: int = 1,
@@ -111,11 +108,11 @@ class Cleaner(ICleaner):
         # (?<=[a-zA-Z\s])(?=\s?[\s\.]{3,}|[0\.]{3,}|...|[e\s]{4,})(?!\s?[A-Z]).*
         return what_precede + dust_exp + f"(?P<{self.dust_pos}>.*)" + what_not_follow
 
-    def remove_dusts(self) -> Text_Lines:
+    def remove_dusts(self) -> Paged_Text_Lines:
         pat: Pattern = re.compile(self.get_dust_expression())
 
-        def line_processor(ms: list[Match], line: Text_Line) -> str:
+        def line_processor(ms: list[Match], line: Paged_Text_Line) -> str:
             dust_border: int = min([m.start(Cleaner.dust_pos) for m in ms])
-            return line.text[:dust_border] + " " + self.get_page_number(line)
+            return line.text[:dust_border] + " " + line.get_page_string()
 
         return self.apply_each_line(pat, line_processor)
