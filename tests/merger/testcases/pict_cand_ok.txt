@@ -1,0 +1,3 @@
+# 0: with header,with page, 1: with header no page, 2: no header, with page, 3: both no
+term1: 0,1,2,3
+term2: 0,1,2,3
