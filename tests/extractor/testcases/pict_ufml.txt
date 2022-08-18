@@ -1,0 +1,3 @@
+term1: main, front, none
+term2: main, front, none
+term3: main, front, none

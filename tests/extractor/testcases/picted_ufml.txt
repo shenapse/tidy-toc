@@ -1,0 +1,11 @@
+term1	term2	term3
+main	main	main
+main	none	front
+none	main	none
+front	main	front
+none	front	main
+front	front	none
+main	front	front
+front	none	main
+main	none	none
+none	none	front
