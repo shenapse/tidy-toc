@@ -21,7 +21,7 @@ from Interpreter import Interpreter  # type: ignore
 def test_interpret_phrase_all(all_ok):
     for m in range(1, 100 + 1):
         for a in all_ok:
-            inp = Interpreter(range_max=m)
+            inp = Interpreter(range_size=m)
             w = Interpreter.Word(a.data)
             assert inp._interpret_phrase(w) == inp.range
 
@@ -29,7 +29,7 @@ def test_interpret_phrase_all(all_ok):
 def test_interpret_phrase_none(none_ok):
     for m in range(1, 100 + 1):
         for a in none_ok:
-            inp = Interpreter(range_max=m)
+            inp = Interpreter(range_size=m)
             w = Interpreter.Word(a.data)
             assert inp._interpret_phrase(w) == set()
 
@@ -37,14 +37,14 @@ def test_interpret_phrase_none(none_ok):
 def test_interpret_phrase_ng(integer_data, help_ok, ng):
     for a in integer_data + help_ok + ng:
         w = Interpreter.Word(a.data)
-        inp = Interpreter(range_max=10)
+        inp = Interpreter(range_size=10)
         with pytest.raises(Exception):
             inp._interpret_phrase(w)
 
 
 def test_interpret_digit_wrt_empty_set(digit_ok):
     M: int = max([int(d.data) for d in digit_ok])
-    inp = Interpreter(range_max=M)
+    inp = Interpreter(range_size=M)
     for d in digit_ok:
         w = Interpreter.Word(d.data)
         digit = int(d.data)
@@ -59,7 +59,7 @@ def test_interpret_minus_wrt_range(minus_ok):
     for d in minus_ok:
         d_int: int = d.res[0]
         w = Interpreter.Word(d.data)
-        inp = Interpreter(range_max=M)
+        inp = Interpreter(range_size=M)
         # interpret minus pattern to range
         set_removed: set[int] = inp._interpret_minus_pattern(word=w, wrt=inp.range)
         # now the element is removed
@@ -76,6 +76,6 @@ def test_interpret_range_wrt_empty_set(range_ok):
             d_min: int = min(d1, d2)
             d_max: int = max(d1, d2)
             w = Interpreter.Word(d.data)
-            inp = Interpreter(range_max=M)
+            inp = Interpreter(range_size=M)
             # coincides with [dmin,dmax]
             assert set(range(d_min, d_max + 1)) == inp._interpret_range_pattern(word=w)

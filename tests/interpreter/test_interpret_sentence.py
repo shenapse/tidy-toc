@@ -25,7 +25,7 @@ def add_space(texts: list[str]) -> list[str]:
 @pytest.fixture
 def invalid_characters() -> list[str]:
     """characters not allowed by valid words"""
-    inp = Interpreter(range_max=10)
+    inp = Interpreter(range_size=10)
     return [chr(i) for i in range(97, 123) if chr(i) not in inp.valid_words]
 
 
@@ -186,13 +186,14 @@ def interpret_sentence_ok_mixed(max_line: int) -> list[tuple[str, list[int]]]:
 
 
 def test_interpret_ng_on_invalid_characters(invalid_characters, invalid_characters_mixed):
-    inp = Interpreter(range_max=20)
+    inp = Interpreter(range_size=20)
     for s in invalid_characters_mixed + invalid_characters:
+        print(s)
         assert not inp.test_valid_characters(sentence=Interpreter.Sentence(s))
 
 
 def test_interpret_ng_on_uninterpretable(uninterpretable_sentence):
-    inp = Interpreter(range_max=20)
+    inp = Interpreter(range_size=20)
     for s in uninterpretable_sentence:
         # this uses valid characters but uninterpretable
         if not s == " ":  # space only character is forbidden by sentence class
