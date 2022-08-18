@@ -9,12 +9,14 @@
 /**/__pycache__
 /**/.pytest_cache
 !/scr/Cleaner.py
-!/scr/collect_zip.py
 !/scr/Extractor.py
+!/scr/Merger.py
 !/scr/Interpreter.py
-!/scr/Prompt.py
-!/scr/Selector.py
+!/scr/Filtering_Prompt.py
+!/scr/Input.py
+!/scr/Filter_Lines.py
 !/scr/Text_Line.py
+!/scr/Text_Lines.py
 !/scr/Type_Alias.py
 !/scr/tidy-toc.py
 !/scr/main.py
