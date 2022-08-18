@@ -1,0 +1,7 @@
+term1	term2	term3
+roman	roman	all
+roman	arabic	second
+roman	roman	first
+arabic	arabic	all
+arabic	roman	second
+arabic	arabic	first

@@ -6,7 +6,8 @@ import pytest
 # from scr.Text_Line import Text_Line, Text_Lines
 
 sys.path.append(os.path.join(".", "scr"))
-from Text_Line import Text_Line, Text_Lines  # type: ignore
+from Text_Line import Text_Line  # type: ignore
+from Text_Lines import Text_Lines
 
 #
 # -------------------------

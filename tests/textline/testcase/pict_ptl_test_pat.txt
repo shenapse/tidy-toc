@@ -1,0 +1,4 @@
+# test roman only
+term1: roman, arabic
+term2: roman, arabic
+term3: first, second, all
