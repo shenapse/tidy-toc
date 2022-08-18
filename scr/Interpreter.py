@@ -3,10 +3,8 @@ from __future__ import annotations
 import itertools
 import re
 from enum import IntEnum, auto
-from re import Match, Pattern
+from re import Pattern
 from typing import Callable, Final, Iterable
-
-from rich import print
 
 
 class Interpreter:
@@ -23,8 +21,8 @@ class Interpreter:
         def validate_text(self, text: str) -> bool:
             if text == "":
                 raise ValueError(f"{text} is empty.")
-            elif (L := list(re.finditer(self.pat, text))) != []:
-                raise ValueError(f"Invalid input. {text} contains a forbidden character {L[0].group(0)}.")
+            elif (L := re.search(self.pat, text)) is not None:
+                raise ValueError(f"Invalid input. {text} contains a forbidden character {L.group()}.")
             return True
 
     class Sentence(str):
@@ -35,17 +33,17 @@ class Interpreter:
 
         @classmethod
         def is_sentenceable(cls, text: str) -> bool:
-            return text != "" and list(re.finditer(cls.pat, text)) == [] and list(re.finditer(cls.pat_ng, text)) == []
+            return text != "" and re.search(cls.pat, text) is None and re.search(cls.pat_ng, text) is None
 
         @classmethod
-        def get_error_msg(cls, text: str) -> str:
+        def get_error_msg(cls, text: str) -> str | None:
             if text == "":
                 return "empty text."
-            elif (L := list(re.finditer(cls.pat, text))) != []:
-                return f"Invalid input. {text} contains a forbidden character {L[0].group(0)}."
-            elif list(re.finditer(cls.pat_ng, text)) != []:
+            elif (L := re.search(cls.pat, text)) is not None:
+                return f"Invalid input. {text} contains a forbidden character {L.group()}."
+            elif re.search(cls.pat_ng, text) is not None:
                 return "text contains nothing but spaces."
-            return ""
+            return None
 
         def __new__(cls, val: str):
             self = super().__new__(cls, val.lower())
@@ -53,7 +51,7 @@ class Interpreter:
             return self
 
         def validate_text(self, text: str) -> bool:
-            if (msg := self.get_error_msg(text)) != "":
+            if (msg := self.get_error_msg(text)) is not None:
                 raise ValueError(msg)
             return True
 
@@ -154,16 +152,16 @@ class Interpreter:
         """test if the input integer or set of integers is in valid range."""
         return x in self.range if isinstance(x, int) else x.issubset(self.range)
 
-    def _get_matches(self, pat: Pattern, word: Word) -> list[Match]:
-        """get the list of re.Match objects that correspond to input pattern and word."""
-        return list(re.finditer(pat, word))
+    # def _get_matches(self, pat: Pattern, word: Word) -> list[Match]:
+    #     """get the list of re.Match objects that correspond to input pattern and word."""
+    #     return list(re.finditer(pat, word))
 
     def _test_match(self, pat: Pattern, text: Word | Sentence) -> bool:
         """test if the input pair of pattern and word hits something nonempty."""
         return (
-            self._get_matches(pat, text) != []
+            re.search(pat, text) is not None
             if isinstance(text, self.Word)
-            else any(self._get_matches(pat, word) != [] for word in text.to_words())
+            else any(re.search(pat, word) is not None for word in text.to_words())
         )
 
     def _test_match_by(self, pats: list[Pattern], word: Word, eval: Callable[[Iterable], bool] = any) -> bool:
@@ -187,7 +185,11 @@ class Interpreter:
         self, match_cls: Interpreter.Digit | Interpreter.Minus | Interpreter.Range, word: Word
     ) -> list[int]:
         """get list of integers when the pair of pattern (of match_cls) and word hits something meaningful."""
-        return [int(self._get_matches(match_cls.pat, word)[0].group(call)) for call in match_cls.calls]
+        return (
+            [int(match.group(call)) for call in match_cls.calls]
+            if (match := re.search(match_cls.pat, word)) is not None
+            else []
+        )
 
     def _get_matched_phrase(self, word: Word) -> Phrase.Name:
         """get the first hit phrase in word. Error if it hits no phrases."""
@@ -236,8 +238,8 @@ class Interpreter:
 
     def test_valid_characters(self, sentence: Sentence) -> bool:
         """test if input sentence is free of invalid characters"""
-        pat: Pattern = re.compile("[^" + "".join(self.valid_words) + "]")
-        return list(re.finditer(pat, sentence)) == []
+        pat: Pattern = re.compile(f"[^{''.join(self.valid_words)}]")
+        return re.search(pat, sentence) is None
 
     def _get_maximum_valid_length(self, scale: int = 5) -> int:
         return max(self.range) * scale
