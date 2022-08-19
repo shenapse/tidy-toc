@@ -51,7 +51,7 @@ class Merger:
 
     def get_candidates(self) -> Paged_Text_Lines:
         """get the first element of the candidtate pair of lines"""
-        end: int = len(self.lines) - 1
+        end: int = self.lines.len() - 1
         rows: list[int] = [
             line.idx
             for i, line in enumerate(self.lines[:end])

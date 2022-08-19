@@ -102,7 +102,7 @@ class Extractor:
             match line.header:
                 case line.Header.DIGIT:
                     # this looks like ['1','13','5']
-                    digits_cur: list[str] = self._get_digit_header(line.get_word_at(0))
+                    digits_cur: list[str] = self._get_digit_header(line[0])
                     if not self._digits_in_this_order(digits_last, digits_cur):
                         rows.append(line.idx)
                     # record the latest digits
@@ -110,7 +110,7 @@ class Extractor:
                     # init back
                     abc_last = abc_init
                 case line.Header.ALPHABET:
-                    abc_cur: str = self._get_abc_header(line.get_word_at(0))
+                    abc_cur: str = self._get_abc_header(line[0])
                     if not self._abc_in_this_order(abc_last, abc_cur):
                         rows.append(line.idx)
                     abc_last = abc_cur
