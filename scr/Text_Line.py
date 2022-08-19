@@ -41,27 +41,29 @@ class Text_Line:
         return got if isinstance(got, list) else got
 
     @overload
-    def __setitem__(self, key: int, value: str) -> None:
+    def __setitem__(self, key: int, value: str) -> tuple[bool, int | slice]:
         ...
 
     @overload
-    def __setitem__(self, key: slice, value: list[str]) -> None:
+    def __setitem__(self, key: slice, value: list[str]) -> tuple[bool, int | slice]:
         ...
 
-    def __setitem__(self, key: int | slice, value: str | list[str]) -> None:
+    def __setitem__(self, key: int | slice, value: str | list[str]) -> tuple[bool, int | slice]:
+        """setter for word in self.words. return true if any elements have been actually altered."""
         # check input
-        if isinstance(key, slice) and all(self._validate_text(v) for v in value):
-            if self[key] != value:
+        if isinstance(key, slice) and all(self._validate_text(v) for v in value) and self[key] != value:
+            self._words[key] = value
+            self._words = self._split()
+        elif isinstance(key, int) and isinstance(value, str) and self._validate_text(value) and value != self[key]:
+            if value == "":
+                self._words.pop(key)
+            else:
                 self._words[key] = value
-                self._words = self._split()
-                self.update_text()
-        elif isinstance(key, int) and isinstance(value, str) and self._validate_text(value):
-            if value != self[key]:
-                if value == "":
-                    self._words.pop(key)
-                else:
-                    self._words[key] = value
-                self.update_text()
+        else:  # if neither is true, nothing changed
+            return False, key
+        # reaching here means something has changed
+        self.update_text()
+        return True, key
 
     def __iter__(self) -> Iterator[str]:
         return self._words.__iter__()
@@ -155,11 +157,6 @@ class Text_Line:
         target: str = self.text if at is None else self[at]
         return re.search(pat, target) is not None
 
-    # def apply_pattern_at(self, pat: Pattern, at: Optional[int] = None) -> list[Match]:
-    #     """get list of re.Match objects derived by applying pat at 'at'-th word"""
-    #     text_target: str = self.text if at is None else self[at]
-    #     return list(re.finditer(pat, text_target))
-
 
 class Paged_Text_Line(Text_Line):
     page_key: Final[str] = "page"
@@ -187,7 +184,7 @@ class Paged_Text_Line(Text_Line):
         super().__init__(idx=idx, text=text, sep=sep)
         if text_line is not None:
             self.idx: int = text_line.idx
-            self.text: str = text_line.text
+            self._text: str = text_line.text
             self._sep: str = text_line.sep
         # init page number property
         self.page_number: Optional[int] = page_number
@@ -196,12 +193,22 @@ class Paged_Text_Line(Text_Line):
         self.page_number = self._get_page_number() if page_number is None else page_number
         self.roman_page_number = self._get_roman_page_number() if not self.is_page_set() else roman_page_number
         self.header: Paged_Text_Line.Header = self._get_header_type()
-        self.text = self._get_text_without_page()
+        self._text = self._get_text_without_page()
         if isinstance(self, Paged_Text_Line):
             self.update_words()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}: idx={self.idx}, text={self.text}, page_number={self.page_number}, roman_page_number={self.roman_page_number}, header_type={self.header.name}"
+
+    def update_page_number(self, overwrite: bool = False) -> None:
+        """manually update page number. might be needed if text is significantly changed."""
+        if overwrite or not self.is_page_set():
+            self.page_number = self._get_page_number()
+            self.roman_page_number = self._get_roman_page_number()
+
+    def update_header(self) -> None:
+        """manually update header type. might be needed if text is significantly changed."""
+        pass
 
     def get_instance(
         self,
