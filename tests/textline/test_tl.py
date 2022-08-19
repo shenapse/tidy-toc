@@ -1,5 +1,6 @@
 import os
 import sys
+from cgi import test
 
 import pytest
 
@@ -68,6 +69,36 @@ def textline_empty() -> list[str]:
     return texts
 
 
+@pytest.fixture
+def words_get_single_ok() -> list[tuple[str, int, str]]:
+    text: str = "0 1 2 3 4 5"
+    return [
+        (text, 0, "0"),
+        (text, 1, "1"),
+        (text, 5, "5"),
+        (text, -1, "5"),
+        (text, -2, "4"),
+    ]
+
+
+@pytest.fixture
+def words_get_single_ng() -> list[tuple[str, int]]:
+    text: str = "10 9 8 7 6"
+    return [(text, 6), (text, -6)]
+
+
+@pytest.fixture
+def words_set_single_ok() -> list[tuple[str, int, str, str]]:
+    text: str = "0 1 2 3 4 5"
+    return [
+        (text, 0, "1", "1 1 2 3 4 5"),
+        (text, 1, "2", "0 2 2 3 4 5"),
+        (text, 5, "4", "0 1 2 3 4 4"),
+        (text, -1, "1", "0 1 2 3 4 1"),
+        (text, -2, "1", "0 1 2 3 1 5"),
+    ]
+
+
 def test_textline_ok(textline_data_ok):
     for i, text in enumerate(textline_data_ok):
         T = Text_Line(idx=i, text=text)
@@ -88,21 +119,36 @@ def test_textline_empty(textline_empty):
         assert T.is_empty()
 
 
-# def test_remove_leading_spaces_ok():
-#     pass
+def test_textline_get_single_item_ok(words_get_single_ok):
+    for text, idx, ans in words_get_single_ok:
+        tl = Text_Line(idx=-1, text=text)
+        print(tl)
+        assert tl[idx] == ans
 
 
-# def test_remove_tail_spaces_ng():
-#     pass
+def test_textline_get_single_item_ng(words_get_single_ng):
+    for text, idx in words_get_single_ng:
+        tl = Text_Line(idx=-1, text=text)
+        print(tl)
+        print(idx)
+        with pytest.raises(IndexError):
+            print(tl[idx])
 
 
-# def test_remove_tal_spaces_ok():
-#     pass
+def test_textline_slice():
+    data: list[str] = [str(i) for i in range(10)]
+    test_data: str = " ".join(data)
+    tl = Text_Line(idx=-1, text=test_data)
+    assert tl[:] == data
+    assert tl[:1] == data[:1]
+    assert tl[8:] == data[8:]
+    assert tl[2:5] == data[2:5]
+    assert tl[1:3:2] == data[1:3:2]
 
 
-# def test_remove_blank_line_ng():
-#     pass
-
-
-# def test_remove_blank_line_ok():
-#     pass
+def test_textline_set_single_item(words_set_single_ok):
+    for text, idx, value, ans in words_set_single_ok:
+        tl = Text_Line(idx=-1, text=text)
+        print(tl)
+        tl[idx] = value
+        assert tl.text == ans

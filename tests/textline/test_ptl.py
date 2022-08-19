@@ -61,10 +61,10 @@ def data_test_roman_pattern() -> list[tuple[Pattern, str, int | None, bool]]:
     pat = re.compile(f"(?=\\s|^)\\s?(?P<key>[ixv]+|[IXV]+)$")
     return [
         (pat, "ix iv", None, True),
-        (pat, "ix 4", 1, False),
+        (pat, "ix 4 4", 1, False),
         (pat, "ix iv", 0, True),
         (pat, "1 4", None, False),
-        (pat, "2 v", 1, True),
+        (pat, "2 v v", 1, True),
         (pat, "6 4", 0, False),
     ]
 
@@ -116,16 +116,17 @@ def test_ptl_header_type(data_header_type):
 def test_test_pattern_at(data_test_roman_pattern):
     for pat, text, at, res in data_test_roman_pattern:
         ptl = Paged_Text_Line(idx=-1, text=text)
+        print(f"at={at}")
         assert ptl.test_pattern_at(pat, at) == res
 
 
-def test_apply_pattern_at(data_apply_roman_pattern):
-    for pat, text, at, res in data_apply_roman_pattern:
-        ptl = Paged_Text_Line(idx=-1, text=text)
-        ms = ptl.apply_pattern_at(pat, at)
-        if not ptl.test_pattern_at(pat, at):
-            assert ms == res
-        else:
-            print(ptl.text)
-            print(ms)
-            assert ms[0].group("key") == res
+# def test_apply_pattern_at(data_apply_roman_pattern):
+#     for pat, text, at, res in data_apply_roman_pattern:
+#         ptl = Paged_Text_Line(idx=-1, text=text)
+#         ms = ptl.apply_pattern_at(pat, at)
+#         if not ptl.test_pattern_at(pat, at):
+#             assert ms == res
+#         else:
+#             print(ptl.text)
+#             print(ms)
+#             assert ms[0].group("key") == res

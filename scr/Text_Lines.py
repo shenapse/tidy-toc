@@ -18,17 +18,19 @@ class _Text_Lines(Generic[T], metaclass=abc.ABCMeta):
     def __init__(self, texts: list[T] | T) -> None:
         self.lines: list[T] = sorted(texts) if isinstance(texts, list) else [texts]
 
-    def __add__(self, other: Self) -> Self:
+    def __add__(self, other: Self | list[T]) -> Self:
         """take union of two Text_Lines"""
-        return self.get_instance(list(itertools.chain(self, other))).remove_duplication().get_sorted()
+        return self.get_instance(list(itertools.chain(self, other))).remove_duplication()
 
-    def __sub__(self, other: Self) -> Self:
+    def __sub__(self, other: Self | list[T]) -> Self:
         """self minus other in set difference sense"""
-        return self.get_instance([s for s in self if not other.has_row(s.idx)])
+        other_: Self = self.get_instance(other) if isinstance(other, list) else other
+        return self.get_instance([s for s in self if not other_.has_row(s.idx)])
 
-    def __and__(self, other: Self) -> Self:
+    def __and__(self, other: Self | list[T]) -> Self:
         """take intersection of two Text_Lines"""
-        return self.select(other.get_index()) if self.len() >= other.len() else other.select(self.get_index())
+        other_: Self = self.get_instance(other) if isinstance(other, list) else other
+        return self.select(other_.get_index()) if self.len() >= other_.len() else other_.select(self.get_index())
 
     @overload
     def __getitem__(self, key: int) -> T:
@@ -97,7 +99,7 @@ class _Text_Lines(Generic[T], metaclass=abc.ABCMeta):
         """filter out self to Self whose rows numbers are not in rows input."""
         return self - self.select(rows)
 
-    def overwrite(self, other: Self) -> Self:
+    def overwrite(self, other: Self | list[T]) -> Self:
         return (self - other) + other
 
     def remove_duplication(self) -> Self:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from enum import IntEnum, auto
 from re import Match, Pattern
-from typing import Final, Optional
+from typing import Final, Iterator, Optional, overload
 
 from rich import print
 from textblob import Word  # type: ignore
@@ -15,8 +15,12 @@ class Text_Line:
         text_slim: str = self.slim_down(text)
         self._validate_text(text_slim)
         self.idx: int = idx
-        self.text: str = text_slim
+        self._text: str = text_slim
+        self._words: list[str] = []
         self._sep: str = sep
+        # update words should be manually called in a subclass
+        if isinstance(self, Text_Line):
+            self.update_words()
 
     def __lt__(self, other: Self) -> bool:
         return self.idx < other.idx
@@ -24,9 +28,65 @@ class Text_Line:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}: idx={self.idx}, text={self.to_text()}"
 
+    @overload
+    def __getitem__(self, key: int) -> str:
+        ...
+
+    @overload
+    def __getitem__(self, key: slice) -> list[str]:
+        ...
+
+    def __getitem__(self, key: int | slice) -> str | list[str]:
+        got: str | list[str] = self.words.__getitem__(key)
+        return got if isinstance(got, list) else got
+
+    @overload
+    def __setitem__(self, key: int, value: str) -> None:
+        ...
+
+    @overload
+    def __setitem__(self, key: slice, value: list[str]) -> None:
+        ...
+
+    def __setitem__(self, key: int | slice, value: str | list[str]) -> None:
+        # check input
+        if isinstance(key, slice) and all(self._validate_text(v) for v in value):
+            if self[key] != value:
+                self._words[key] = value
+                self._words = self._split()
+                self.update_text()
+        elif isinstance(key, int) and isinstance(value, str) and self._validate_text(value):
+            if value != self[key]:
+                if value == "":
+                    self._words.pop(key)
+                else:
+                    self._words[key] = value
+                self.update_text()
+
+    def __iter__(self) -> Iterator[str]:
+        return self._words.__iter__()
+
     @property
     def sep(self) -> str:
         return self._sep
+
+    @property
+    def text(self) -> str:
+        return self._text
+
+    @text.setter
+    def text(self, text: str) -> None:
+        self._text = text
+        self.update_words()
+
+    @property
+    def words(self) -> list[str]:
+        return self._words
+
+    @words.setter
+    def words(self, words: list[str]) -> None:
+        self._words = words
+        self.update_text()
 
     def is_empty(self) -> bool:
         return self.to_text() == ""
@@ -42,6 +102,15 @@ class Text_Line:
 
     def print(self) -> None:
         print(self.to_text())
+
+    def _split(self) -> list[str]:
+        return [w.strip() for w in self.text.split(sep=self.sep) if w != ""]
+
+    def update_words(self) -> None:
+        self._words = self._split()
+
+    def update_text(self) -> None:
+        self._text = self.sep.join(self._words)
 
     def slim_down(self, text: str = "") -> str:
         """remove leading and trailing spaces and newline."""
@@ -61,47 +130,35 @@ class Text_Line:
             raise ValueError(f"text must admit no newline character. text={text}")
         return True
 
-    def get_words(self, strip: bool = True) -> list[str]:
-        return (
-            [word.strip() for word in self.to_text().split(self.sep)]
-            if strip
-            else [word for word in self.to_text().split(self.sep)]
-        )
-
-    def _resolve_pos(self, at: int) -> int:
-        return at if at >= 0 else self.get_number_of_words() + at
-
-    def get_word_at(self, at: int, strip: bool = True) -> str:
-        pre_strip: str = self.to_text().split(self.sep)[self._resolve_pos(at)]
-        return pre_strip.strip() if strip else pre_strip
+    def lookup_word(self, pos_character: int) -> tuple[int, str]:
+        """get the word and its positional index (in the list of words) that has the input character position (in the positional index in plain text).
+        if input position points a separator character, the word just after the separator is returned.
+        e.g., if self.text='hello world' and input=6, then 0, then 'world' is returned."""
+        text: str = self.to_text()
+        if pos_character < 0 or pos_character > len(text):
+            raise IndexError(f"asked position={pos_character} looks at nowhere in '{text}' of length {len(text)}")
+        texts: list[str] = text.split(self.sep)
+        csum: int = 0
+        for i, t in enumerate(texts):
+            csum += len(t)
+            if csum >= pos_character:
+                return i, t
+            csum += len(self.sep)
+        # this should not be reached
+        return len(texts) - 1, texts[-1]
 
     def get_number_of_words(self) -> int:
-        return len(self.to_text().split(self.sep))
-
-    def replace_word_at(self, at: int, replace_with: str) -> Self:
-        return self.get_instance(
-            idx=self.idx,
-            text=self.sep.join(
-                [w if i != self._resolve_pos(at) else replace_with for i, w in enumerate(self.get_words())]
-            ),
-            sep=self.sep,
-        ).format_space()
-
-    def remove_word_at(self, at: int) -> Self:
-        return self.get_instance(
-            idx=self.idx,
-            text=self.sep.join([w for i, w in enumerate(self.get_words()) if i != self._resolve_pos(at)]),
-            sep=self.sep,
-        ).format_space()
+        return len(self._words)
 
     def test_pattern_at(self, pat: Pattern, at: Optional[int] = None) -> bool:
-        """test if 'at'-th word has the pat pattern."""
-        return self.apply_pattern_at(pat, at) != []
+        """test if 'at'-th word has the pat pattern. if 'at' is None, the default, the whole text is tested."""
+        target: str = self.text if at is None else self[at]
+        return re.search(pat, target) is not None
 
-    def apply_pattern_at(self, pat: Pattern, at: Optional[int] = None) -> list[Match]:
-        """get list of re.Match objects derived by applying pat at 'at'-th word"""
-        text_target: str = self.text if at is None else self.get_word_at(at)
-        return list(re.finditer(pat, text_target))
+    # def apply_pattern_at(self, pat: Pattern, at: Optional[int] = None) -> list[Match]:
+    #     """get list of re.Match objects derived by applying pat at 'at'-th word"""
+    #     text_target: str = self.text if at is None else self[at]
+    #     return list(re.finditer(pat, text_target))
 
 
 class Paged_Text_Line(Text_Line):
@@ -140,6 +197,8 @@ class Paged_Text_Line(Text_Line):
         self.roman_page_number = self._get_roman_page_number() if not self.is_page_set() else roman_page_number
         self.header: Paged_Text_Line.Header = self._get_header_type()
         self.text = self._get_text_without_page()
+        if isinstance(self, Paged_Text_Line):
+            self.update_words()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}: idx={self.idx}, text={self.text}, page_number={self.page_number}, roman_page_number={self.roman_page_number}, header_type={self.header.name}"
@@ -216,7 +275,7 @@ class Paged_Text_Line(Text_Line):
         n_words: int = self.get_number_of_words()
         if (self.is_page_set() and n_words <= 2) or (not self.is_page_set() and n_words <= 1):
             return self.Header.NO
-        header: str = self.get_word_at(at=0)
+        header: str = self[0]
         if re.search(r"\d+", header):
             return self.Header.DIGIT
         elif self._is_valid_word(header):
