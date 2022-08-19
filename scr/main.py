@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from Cleaner import Cleaner
+from Cleaner import Cleaner, Interactive_Cleaner
 from Extractor import Extractor
 from Filter_Lines import Filter_Lines
 from Filtering_Prompt import Prompt
@@ -32,6 +32,8 @@ def apply_clean(ptls: Paged_Text_Lines, clean_dust: bool = True) -> Paged_Text_L
         c = Cleaner()
         c.read_lines(ptls)
         ptls = c.remove_dusts()
+        ic = Interactive_Cleaner(cleaner=c, lines=ptls)
+        ptls = ic.remove_small_dust()
     return ptls.format_space()
 
 
