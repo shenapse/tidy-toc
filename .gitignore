@@ -10,6 +10,7 @@
 /**/.pytest_cache
 !/scr/Cleaner.py
 !/scr/Extractor.py
+!/scr/Page_Corrector.py
 !/scr/Merger.py
 !/scr/Interpreter.py
 !/scr/Filtering_Prompt.py
