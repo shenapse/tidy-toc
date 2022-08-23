@@ -5,7 +5,6 @@ from enum import IntEnum, auto
 from re import Match, Pattern
 from typing import Final, Iterator, Optional, overload
 
-from rich import print
 from textblob import Word  # type: ignore
 from typing_extensions import Self
 
@@ -68,6 +67,9 @@ class Text_Line:
     def __iter__(self) -> Iterator[str]:
         return self._words.__iter__()
 
+    def __len__(self) -> int:
+        return len(self.text)
+
     @property
     def sep(self) -> str:
         return self._sep
@@ -101,9 +103,6 @@ class Text_Line:
 
     def get_instance(self, idx: int, text: str, sep: str) -> Self:
         return Text_Line(idx=idx, text=text, sep=sep)
-
-    def print(self) -> None:
-        print(self.to_text())
 
     def _split(self) -> list[str]:
         return [w.strip() for w in self.text.split(sep=self.sep) if w != ""]
