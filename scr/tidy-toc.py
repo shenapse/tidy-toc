@@ -20,21 +20,28 @@ from main import tidy
     "--select",
     type=bool,
     is_flag=True,
-    help="suggest unnecessary lines, such as 'xii', 'iv Contents', and ask user to select from them interactively.",
+    help="suggest unnecessary rows, such as 'xii', 'iv Contents', and ask user to select from them interactively.",
 )
 @click.option(
     "-m",
     "--merge",
     type=bool,
     is_flag=True,
-    help="suggest neighboring two lines that might be merged, such as '1.1 hello' followed by 'world 5.'",
+    help="suggest neighboring two rows that might be originally in a same row, such as '1.1 hello' followed by 'world 5.'",
+)
+@click.option(
+    "-p",
+    "--page",
+    type=bool,
+    is_flag=True,
+    help="point out badly page-numbered rows and correct them interactively.",
 )
 @click.option(
     "-l",
     "--maxline",
     type=int,
     default=10,
-    help="the number of suggested lines displayed at once in the --select process. the default uses 10. will be ignored unless --select option is enabled.",
+    help="the number of suggested rows displayed at once in the --select process. the default uses 10. will be ignored unless --select option is enabled.",
 )
 @click.option(
     "-d",
@@ -73,6 +80,7 @@ def tidy_toc(
     clean: bool,
     select: bool,
     merge: bool,
+    page: bool,
     maxline: int,
     dirout: str | None,
     pre: str,
@@ -85,6 +93,7 @@ def tidy_toc(
         clean_dust=clean,
         select_line=select,
         merge_line=merge,
+        correct_page_number=page,
         max_line=maxline,
         dir=dirout,
         prefix=pre,

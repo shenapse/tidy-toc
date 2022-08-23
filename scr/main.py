@@ -1,11 +1,10 @@
-from __future__ import print_function
-
 from Cleaner import Cleaner, Interactive_Cleaner
 from Extractor import Extractor
 from Filter_Lines import Filter_Lines
 from Filtering_Prompt import Prompt
 from Interpreter import Interpreter
 from Merger import Merger
+from Page_Corrector import Correct, Fill
 from Text_Lines import Paged_Text_Lines
 from Type_Alias import Path, Save_Result
 
@@ -60,11 +59,28 @@ def apply_merge(ptls: Paged_Text_Lines, merge_line: bool) -> Paged_Text_Lines:
     return ptls
 
 
+def apply_page_correct(ptls: Paged_Text_Lines, correct_page: bool) -> Paged_Text_Lines:
+    if correct_page:
+        ex = Extractor(text=ptls)
+        lines_not_numbered = ex.get_non_numbered_lines()
+        filler = Fill(lines_blank_page_number=lines_not_numbered, lines_ref=ptls)
+        ptls = filler.get_filled_lines()
+        ex.read_text(ptls)
+        cor = Correct(
+            lines_strange_page_number=ex.get_order_disturbing_main_pages(),
+            lines_ref=ptls,
+            ignore=lines_not_numbered.get_index(),
+        )
+        ptls = cor.get_corrected_lines()
+    return ptls
+
+
 def tidy(
     text_file: Path | str,
     clean_dust: bool = True,
     select_line: bool = True,
     merge_line: bool = True,
+    correct_page_number: bool = True,
     max_line: int = 10,
     dir: Path | str | None = None,
     prefix: str = "",
@@ -81,6 +97,7 @@ def tidy(
         ptls = apply_clean(ptls, clean_dust=clean_dust)
         ptls = apply_select(ptls, select_line=select_line, max_line=max_line)
         ptls = apply_merge(ptls, merge_line=merge_line)
+        ptls = apply_page_correct(ptls, correct_page_number)
         text_processed: str = ptls.to_text()
         # saving procedure
         dir_out: Path = file.parent if dir is None else Path(dir)
@@ -94,13 +111,3 @@ def tidy(
         if not success:
             raise Exception(f"failed to save {str(saved_file)}.")
         return saved_file
-
-
-if __name__ == "__main__":
-    file = "./sample/MCSM_cleaned.txt"
-    with open(file) as f:
-        text = f.read()
-        ptls = Paged_Text_Lines(text)
-        ptls = apply_clean(ptls=ptls)
-        ptls = apply_select(ptls)
-        ptls = apply_merge(ptls=ptls, merge_line=True)

@@ -12,29 +12,8 @@ from Text_Lines import Text_Lines
 
 #
 # -------------------------
-#   test start!
+#   test data
 # -------------------------
-
-# ---------------------------------------------
-# pict_tl.txt
-# ---------------------------------------------
-# term1   term2   term3   term4   term5
-# ----------------------------------------------
-# space   space   space   nl      text      OK
-# text    text    space   nl      space     OK
-# nl      nl      text    nl      space     OK
-# text    text    text    text    nl        OK
-# nl      space   text    text    nl        OK
-# space   text    text    space   text      OK
-# nl      space   space   space   nl        OK
-# text    space   nl      space   space     OK
-# space   nl      nl      space   nl        OK
-# --------------------------------------------
-# space   nl      space   text    space     NG
-# nl      text    nl      text    text      NG
-# text    nl      nl      nl      text      NG
-# text    nl      text    nl      nl        NG
-# ---------------------------------------------
 
 
 @pytest.fixture
@@ -97,6 +76,11 @@ def words_set_single_ok() -> list[tuple[str, int, str, str]]:
         (text, -1, "1", "0 1 2 3 4 1"),
         (text, -2, "1", "0 1 2 3 1 5"),
     ]
+
+
+# -------------------------
+#   test start!
+# -------------------------
 
 
 def test_textline_ok(textline_data_ok):

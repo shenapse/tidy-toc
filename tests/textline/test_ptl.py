@@ -1,8 +1,7 @@
 import os
 import re
 import sys
-from difflib import Match
-from re import Pattern
+from re import Match, Pattern
 
 import pytest
 
