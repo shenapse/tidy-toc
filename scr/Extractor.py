@@ -44,7 +44,7 @@ class Extractor:
 
     def get_lines_with_unexpected_roman_number(self) -> Paged_Text_Lines:
         """get lines that are indexed by a roman number after an arabic numbered page."""
-        main_head: int = self.lines.len()
+        main_head: int = len(self.lines)
         for i, line in enumerate(self.lines):
             if line.page_number is not None:
                 main_head = i
