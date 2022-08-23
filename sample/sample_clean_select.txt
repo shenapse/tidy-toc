@@ -1,0 +1,95 @@
+PREFACE eee eect ene ene nt ene tenet nee n eens tne tee ix
+Acknowledgments .......00cccccecceceeseeeueeeesueeteseneeeeaes xiii
+Suggestions on the Use of This Book .............0eceeeeeeeeeues xv
+Introduction: Prerequisites and Preliminaries........... 1
+DRS 0) (nS 1
+2. Sets and Classes... 0.0... 6. cece cece cece eect eee e eee tenes 1
+3. Functions... .......0. 0 0c eeeee eee eee e eee tent eet t ee eet eee 3
+4, Relations and Partitions. ...........6..eseeeee eect tees e eens 6
+6. The Integers... 0.6... cece cece cece eee e ee ee eee n eee nee 9
+7. The Axiom of Choice, Order and Zorn’s Lemma..............+ 12
+8. Cardinal Numbers...............0 2.6 sees cece eens eeeeeeeeeee 15
+Chapter I: Groups..............0. 60 ce ce cee eee ee eee een ee 23
+1. Semigroups, Monoids and Groups.............6.-.eeee cence 24
+2, Homomorphisms and Subgroups.............000000eeeeeeeeee 30
+3, Cyclic Groups. .... 26-6 cece eee eee eee e cence neces 35
+4. Cosets and Counting... ........ 0... c cece cece eee ee eee e ee 37
+5. Normality, Quotient Groups, and Homomorphisms............. 41
+6. Symmetric, Alternating, and Dihedral Groups.................. 46
+7. Categories: Products, Coproducts, and Free Objects............ 52
+8. Direct Products and Direct Sums..............000cceeeeeee ees 59
+9. Free Groups, Free Products, Generators & Relations........... 64
+Chapter Il: The Structure of Groups...................... 70
+1, Free Abelian Groups..........0.e0ccceccuseuseeceeeeeueenes 10
+2. Finitely Generated Abelian Groups...................000ee ees 76
+xxi
+xxii ‘TABLE OF CONTENTS
+3. The Krull-Schmidt Theorem. ..........60 0000s ee eee e eee ee ees 83
+4. The Action of a Group on a Set............... 06 2c eee 88
+5. The Sylow Theorems. .......... 0.0.00 eee ee eee ee eee e ee eee 92
+6. Classification of Finite Groups..........-...0000eeeeee cee ee 96
+7. Nilpotent and Solvable Groups............2.0: eee e cece ee eee 100
+8. Normal and Subnormal Series.............6.4224200eeee eee ee 107
+Chapter Ill: RIngS.........0... 000. c cece cence eee nee 114
+1, Rings and Homomorphisms.........- 260-0. 00sseeeeeeeee eee 115
+2. Ideals... 22.2... cce cece eee e teenies 122
+3. Factorization in Commutative Rings.................eeee seen 135
+4. Rings of Quotients and Localization............-..6...000e eee 142
+5. Rings of Polynomials and Formal Power Series................ 149
+6. Factorization in Polynomial Rings... ...........000.ceeee eee 157
+Chapter IV: Modules.................. 0.00 cs ecee cece ee eens 168
+1. Modules, Homomorphisms and Exact Sequences ........... 169
+2. Free Modules and Vector Spaces... 2.2... 20.00. ee ee euue 180
+3. Projective and Injective Modules.............. 00000 ee 190
+4. Hom and Duality... 2... 0... ee ee eee 199
+5. Tensor Products..... 22.00 cee ee eee cee eee eee eee 207
+6. Modules over a Principal Ideal Domain.................6 218
+7. Algebras... 6. ee eee eee nee 226
+Chapter V: Fields and Galois Theory..................... 230
+1. Field Extensions. ......... 00000: e eee eeeeee eee e tee ee tees eees 231
+Appendix: Ruler and Compass Constructions. .............- 238
+2. The Fundamental Theorem.............050sceeeeceeeeeeeeeee 243
+Appendix: Symmetric Rational Functions..................+ 252
+3. Splitting Fields, Algebraic Closure and Normality.............. 257
+Appendix: The Fundamental Theorem of Algebra............ 265
+4. The Galois Group of a Polynomial.............0000 0000 ee eee 269
+5. Fimite Fields. ....... 0.06.06 c cece cece ee eee eee eee tree teers 278
+6. Separability.... 0.0.0... ..c ccc eee cee eect tent eeeeee 282
+7. Cyclic Extensions. ............ 00.000 eee eee eee ee tenet e eens 289
+8. Cyclotomic Extensions............0060:e eee eee eee ee eeeee ees 297
+9, Radical Extensions. ............ sss eeeeee tees eee ee eneee eens 302
+Appendix: The General Equation of Degree n............... 307
+Chapter VI: The Structure of Fields....................... 311
+1. Transcendence Bases... .... 2.06... ese cece eee renee teen eee 311
+2, Linear Disjointness and Separability................ 2.0.0.0 eee 318
+TABLE OF CONTENTS xxii
+Chapter Vil: Linear Algebra..................... 0.0 es eeee 327
+1. Matrices and Maps............. 060 cece eee cece eee te nee eee 328
+2. Rank and Equivalence..........--..00sssseeeeeeeeeeeeeseees 335
+Appendix: Abelian Groups Defined by
+Generators and Relations...........-.4+.0+s000+ 343
+3, Determinants. ......... 0... eee eee eee eee teen tees 348
+4, Decomposition of a Single Linear Transformation and Similarity. 355
+5, The Characteristic Polynomial, Eigenvectors and Eigenvalues... . 366
+Chapter Vill: Commutative Rings and Modules........... 371
+1. Chain Conditions. .............. 0000 cece cece cee e eee ee eee ees 372
+2. Prime and Primary Ideals. ........ 26... 00ceceeseeeseeeeeu ee 377
+3. Primary Decomposition............... ccc ce ece eee e een ee eee ee 383
+4, Noetherian Rings and Modules............0..00.00eceeeee eee 387
+5. Ring Extensions........ 660.6660 0 cece cece eee ee teen eee eeeenee 394
+6. Dedekind Domains........... 60.0006 ccc cece cece eee ee eens 400
+7. The Hilbert Nullstellensatz. ...............0.. 00 cee eee eee eee 409
+Chapter IX: The Structure of Rings....................... 414
+1. Simple and Primitive Rings............ 000s sess cee eee ee eens 415
+2. The Jacobson Radical. . 2.2.2... 60... cece cece ence e eee eee eee 424
+3. Semisimple Rings... ..... 06. .... cece cece cece eee e eee eee eens 434
+4, The Prime Radical; Prime and Semiprime Rings............... 444
+5. Algebras... 2.0.2... eee e cece cece cece ee 450
+6. Division Algebras............. 00.0000 cece cece eee e ee en eee e ee 456
+Chapter X: Categories........... 0.0... cece eee cee eee eee 464
+1, Functors and Natural Transformations.................00.005 465
+2. Adjoint Functors...........6000c0cccceseveeueeveveeesueenes 476
+3. Morphisms..... 02.00.00. c cece cece cece ence eee e tent enee 480
+List of Symbols... 6.6... cece eee ee eee teens 485
+Bibliography... 26... c ccc e cece cette eee te ete c ene 489
+U(r rrr 493

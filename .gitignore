@@ -3,7 +3,8 @@
 /.venv
 /poetry.lock
 /sample/*
-!/sample/demo.gif
+!/sample/demo*.gif
+!/sample/sample*.txt
 !/sample/table_of_contents*.txt
 /scr/*
 /**/__pycache__

@@ -1,0 +1,168 @@
+Contents 1
+Chapter 1
+Basic Concepts 1
+1.1 Introduction 1
+1.2 Basic Elements 3
+1.3 Decision Rules and Risk 7
+1.4 Randomized Decision Rules 10
+1.5 Decision Principles 14
+1.6 Foundations 7
+1.6.1 Criticisms of Classical Statistics 18
+1.6.2. The Likelihood Principle 23
+1.6.3 Choosing the Decision Principle 28
+1.7 Sufficient Statistics 30
+1.8 Convexity 33
+Exercises 37
+Chapter 2 40
+Utility and Loss 40
+2.1 Introduction 40
+2.2. Utility Theory 41
+2.3. The Utility of Money 47
+2.4 The Loss Function 51
+2.5 Criticisms 37
+Exercises 58
+Chapter 3 61
+Prior Information and Subjective Probability 61
+3.1 Subjective Probability 61
+3.2. Prior Information 63
+3.2.1 Subjective Determination of the Prior Density 63
+3.2.2. Noninformative Priors 68
+3.2.3. Maximum Entropy Priors 75
+3.2.4 Determination of the Prior from Past Data B
+3.2.5 Combining Past Data and Subjective Information 83
+3.3. Criticisms 84
+3.4 The Statistician’s Role 86
+Exercises 86
+Chapter 4 89
+Bayesian Analysis 89
+4.1 Introduction 89
+4.2 The Posterior Distribution 92
+4.2.1 Definition and Determination 92
+4.2.2 Conjugate Families 96
+4.2.3. The Predictive Distribution 98
+4.2.4 Improper Priors 98
+4.3 Bayesian Inference 99
+43.1 Estimation 100
+4.3.2 Credible Regions 102
+4.3.3. Hypothesis Testing 104
+44 Bayesian Decision Theory 108
+4.4.1 Normal and Extensive Forms of Analysis 108
+4.4.2 Estimation 110
+4.4.3 Finite Action Problems and Hypothesis Testing 112
+4.4.4 Improper Priors and Generalized Bayes Rules 116
+4.4.5 Empirical Bayes Analysis and Compound Decision Problems 117
+4.5 Admissibility of Bayes and Generalized Bayes Rules 121
+4.5.1 Bayes Rules 121
+4.5.2 Generalized Bayes Rules 123
+4.6 Robustness of Bayes Rules 127
+4.6.1 Introduction 127
+4.6.2. Measuring Robustness 129
+4.6.3 The Development of Robust Priors 139
+4.6.4 Robust Bayesian Procedures for a Multivariate Normal Mean 142
+4.6.5 The Robustness of Noninformative Priors 152
+4.7 Conclusions 155
+Exercises 156
+Chapter 5 169
+Minimax Analysis 169
+5.1 Introduction 169
+5.2 Game Theory 171
+5.2.1 Basic Elements 171
+5.2.2 General Techniques for Solving Games 179
+5.2.3 Finite Games 186
+5.2.4 Games with Finite © 192
+5.2.5 The Supporting and Separating Hyperplane Theorems 200
+5.2.6 The Minimax Theorem 206
+5.3. Statistical Games 208
+5.3.1 Introduction 208
+5.3.2 General Techniques for Solving Statistical Games 210
+5.3.3 Statistical Games with Finite © 215
+5.4 Evaluation of the Minimax Principle 220
+5.4.1 Admissibility of Minimax Rules 220
+5.4.2 Rationality and the Minimax Principle 221
+5.4.3 Comparison with the Bayesian Approach 222
+5.4.4 The Desire to Act Conservatively 226
+5.4.5 Minimax Regret 226
+5.4.6 Conclusions 228
+Exercises 229
+Chapter 6 237
+Invariance 237
+6.1 Introduction 237
+6.2 Formulation 240
+6.2.1 Groups of Transformations 240
+6.2.2 Invariant Decision Problems 242
+6.2.3 Invariant Decision Rules 244
+6.3 Location Parameter Problems 246
+6.4 Other Examples of Invariance 249
+6.5 Maximal Invariants 251
+6.6 Invariance and Noninformative Priors 255
+6.6.1 Right and Left Invariant Haar Densities 255
+6.6.2 The Best Invariant Rule 259
+6.6.3 Confidence and Credible Regions 263
+6.7 Invariance and Minimaxity 267
+6.8 Admissibility of Invariant Rules 271
+6.9 Conclusions 273
+Exercises 274
+Chapter 7 281
+Preposterior and Sequential Analysis 281
+7.1 Introduction 281
+7.2. Optimal Fixed Sample Size 283
+7.3 Sequential Analysis—Notation 290
+7.4 Bayesian Sequential Analysis 291
+7.4.1 Introduction 291
+7.4.2 Notation 293
+7.4.3 The Bayes Decision Rule 295
+7.4.4 Constant Posterior Bayes Risk 296
+7.4.5 The Bayes Truncated Procedure 297
+7.4.6 Look Ahead Procedures 304
+7.4.7 Inner Truncation 307
+7.4.8 Approximating the Bayes Procedure and the Bayes Risk 310
+7.4.9 Theoretical Results 316
+7.4.10 Other Techniques for Finding a Bayes Procedure 322
+7.5 The Sequential Probability Ratio Test 330
+7.5.1. The SPRT as a Bayes Procedure 331
+7.5.2 Approximating the Power Function and the Expected Sample Size 334
+7.5.3. Accuracy of the Wald Approximations 344
+7.5.4 Bayes Risk and Admissibility 348
+7.5.5 Other Uses of the SPRT 349
+7.6 Minimax Sequential Procedures 350
+7.7 Discussion of Sequential Analysis 351
+7.7.1 Bayesian Philosophy 352
+7.7.2 The Loss Function 355
+Exercises 356
+Chapter 8 364
+Complete and Essentially Complete Classes 364
+8.1 Preliminaries 364
+8.2 Complete and Essentially Complete Classes from Earlier Chapters 365
+8.2.1 Decision Rules Based on a Sufficient Statistic 365
+8.2.2. Nonrandomized Decision Rules 366
+8.2.3 Finite® 366
+8.2.4 The Neyman-Pearson Lemma 366
+8.3 One-Sided Testing 368
+8.4 Monotone Decision Problems 373
+8.4.1 Monotone Multiple Decision Problems 374
+8.4.2. Monotone Estimation Problems 377
+8.5 Limits of Bayes Rules 379
+8.6 Other Complete and Essentially Complete Classes of Tests 380
+8.6.1 Two-Sided Testing 380
+8.6.2 Higher Dimensional Results 381
+8.6.3 Sequential Testing 382
+8.7. Continuous Risk Functions 384
+8.8 Stein’s Necessary and Sufficient Condition for Admissibility 385
+8.8.1 Heuristic Statement of the Condition 385
+8.8.2 Proving Admissibility 386
+8.8.3 Generalized Bayes Rules 388
+Exercises 390
+Appendix 1. Common Statistical Densities 393
+I. Continuous 393
+Il. Discrete 395
+Appendix 2. Technical Arguments from Chapter 4 397
+L._ Verification of Formulas (4.6) through (4.8) 397
+IL. Verification of Formula (4.10) 399
+III. Verification of Formula (4.12) 400
+Appendix 3. Technical Arguments from Chapter 7 402
+I. Verification of Formula (7.8) 402
+II. Verification of Formula (7.10) 403
+Bibliography 405
+Notation and Abbreviations 411
+Author Index 415
+Subject Index 417
