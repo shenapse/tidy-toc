@@ -3,12 +3,13 @@ from typing import Callable, Iterator
 import click
 
 from Text_Line import Paged_Text_Line
-from Text_Lines import Paged_Text_Lines
+from Text_Lines import Paged_Text_Lines, Texts_Printer
 
 
 class Merger:
     def __init__(self, ptls: Paged_Text_Lines) -> None:
         self.lines: Paged_Text_Lines = ptls
+        self._printer = Texts_Printer()
 
     def _merge(self, first: Paged_Text_Line, second: Paged_Text_Line) -> Paged_Text_Line:
         """get the merged paged text line. both texts are combined, the page number is taken from the second, and the other properties are inherited from the first."""
@@ -19,8 +20,9 @@ class Merger:
     def _ask_whether_merge(self, idx_first: int) -> bool:
         """show candidates lines and ask user if they should be merged."""
         idx_pos: int = self.lines.search(idx_first)
-        self.lines[idx_pos].print()
-        self.lines[idx_pos + 1].print()
+        self._printer.print(
+            self.lines, start=idx_pos, end=idx_pos + 1, with_page_idx=False, with_def=False, with_N=False
+        )
         return click.prompt(text="merge these rows?", type=bool)
 
     def _map_between(self, fn: Callable[[Paged_Text_Line, Paged_Text_Line], int]) -> Iterator[int]:
@@ -51,7 +53,7 @@ class Merger:
 
     def get_candidates(self) -> Paged_Text_Lines:
         """get the first element of the candidtate pair of lines"""
-        end: int = self.lines.len() - 1
+        end: int = len(self.lines) - 1
         rows: list[int] = [
             line.idx
             for i, line in enumerate(self.lines[:end])

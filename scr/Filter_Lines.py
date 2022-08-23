@@ -2,7 +2,7 @@ from rich import print
 
 from Filtering_Prompt import Prompt
 from Interpreter import Interpreter
-from Text_Lines import Paged_Text_Lines
+from Text_Lines import Paged_Text_Lines, Texts_Printer
 
 
 class Filter_Lines:
@@ -12,6 +12,7 @@ class Filter_Lines:
         self._validate_max_line(max_line=max_line)
         self.max_line: int = max_line
         self.lines: Paged_Text_Lines = lines
+        self._printer = Texts_Printer()
 
     def _validate_max_line(self, max_line: int) -> bool:
         if max_line <= 0 or not isinstance(max_line, int):
@@ -30,7 +31,7 @@ class Filter_Lines:
         return [self.lines.get_row_idx(i + idx_start) for i in idx]
 
     def _get_effective_range(self, n_th_zero_start: int) -> set[int]:
-        length: int = self.lines.len()
+        length: int = len(self.lines)
         number_of_remaining_rows: int = length - self._get_starting_idx(n_th_zero_start)
         return set(range(0, min(self.max_line, number_of_remaining_rows)))
 
@@ -43,19 +44,19 @@ class Filter_Lines:
     def get_filtered_lines(self, inter: Interpreter, prompt: Prompt) -> Paged_Text_Lines:
         """select interactively bad lines and return it."""
         self._validate_same_range(inter=inter)
-        L: int = self.lines.len()
+        L: int = len(self.lines)
         print(f"{L} cases found.")
         delete_idx: list[int] = []
         extra: int = 1 if L % self.max_line > 0 else 0
         total: int = L // self.max_line + extra
         for i in range(0, total):
             start: int = i * self.max_line
-            end: int = min((i + 1) * self.max_line, L)
+            end: int = min((i + 1) * self.max_line, L) - 1
             if start >= end:
                 break
             # show header one time
             with_header: bool = set == 0
-            self.lines.print(start, end, with_header=with_header, with_page_idx=False)
+            self._printer.print(lines=self.lines, start=start, end=end, with_def=with_header, with_page_idx=False)
             # ask user to enter line indexes to delete
             prompt.prompt(inter=inter, msg=f"({i+1}/{total}): Enter N to delete (n/-n/m-n/a[ll]/n[one]/[h]elp)")
             # convert selected list of integer like [0,1,4,6] to corresponding row idx of lines such as [20, 21, 24, 26]
