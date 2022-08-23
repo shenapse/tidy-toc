@@ -3,6 +3,8 @@
 - [Command line tool to clean OCRed ToC text](#command-line-tool-to-clean-ocred-toc-text)
     - [About](#about)
     - [Demo](#demo)
+        - [--clean --select](#--clean---select)
+        - [--merge --page](#--merge---page)
     - [Install](#install)
     - [Usage](#usage)
 
@@ -47,12 +49,17 @@ Utility and Loss 40
 
 ## Demo
 
+### --clean --select
+
 The first demo shows how the process of interactive cleaning of unwanted characters and rows goes.
 The input and output text file are at [sample (clean & select)](/sample/sample_clean_select.txt) and at [output sample (clean & select)](/sample/sample_clean_select_cleaned.txt).
 
 <img src="sample/demo_cs.gif" width="600">
 
+### --merge --page
+
 The second demo shows the process of merging rows and correcting page numbers.
+The input and output text file are at [sample (merge & correct)](/sample/sample_merge_page.txt) and at [output sample (merge & correct)](/sample/sample_merge_page_cleaned.txt).
 
 <img src="sample/demo_mp.gif" width="600">
 

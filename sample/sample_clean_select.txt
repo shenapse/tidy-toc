@@ -1,95 +1,283 @@
-PREFACE eee eect ene ene nt ene tenet nee n eens tne tee ix
-Acknowledgments .......00cccccecceceeseeeueeeesueeteseneeeeaes xiii
-Suggestions on the Use of This Book .............0eceeeeeeeeeues xv
-Introduction: Prerequisites and Preliminaries........... 1
-DRS 0) (nS 1
-2. Sets and Classes... 0.0... 6. cece cece cece eect eee e eee tenes 1
-3. Functions... .......0. 0 0c eeeee eee eee e eee tent eet t ee eet eee 3
-4, Relations and Partitions. ...........6..eseeeee eect tees e eens 6
-6. The Integers... 0.6... cece cece cece eee e ee ee eee n eee nee 9
-7. The Axiom of Choice, Order and Zorn’s Lemma..............+ 12
-8. Cardinal Numbers...............0 2.6 sees cece eens eeeeeeeeeee 15
-Chapter I: Groups..............0. 60 ce ce cee eee ee eee een ee 23
-1. Semigroups, Monoids and Groups.............6.-.eeee cence 24
-2, Homomorphisms and Subgroups.............000000eeeeeeeeee 30
-3, Cyclic Groups. .... 26-6 cece eee eee eee e cence neces 35
-4. Cosets and Counting... ........ 0... c cece cece eee ee eee e ee 37
-5. Normality, Quotient Groups, and Homomorphisms............. 41
-6. Symmetric, Alternating, and Dihedral Groups.................. 46
-7. Categories: Products, Coproducts, and Free Objects............ 52
-8. Direct Products and Direct Sums..............000cceeeeeee ees 59
-9. Free Groups, Free Products, Generators & Relations........... 64
-Chapter Il: The Structure of Groups...................... 70
-1, Free Abelian Groups..........0.e0ccceccuseuseeceeeeeueenes 10
-2. Finitely Generated Abelian Groups...................000ee ees 76
-xxi
-xxii ‘TABLE OF CONTENTS
-3. The Krull-Schmidt Theorem. ..........60 0000s ee eee e eee ee ees 83
-4. The Action of a Group on a Set............... 06 2c eee 88
-5. The Sylow Theorems. .......... 0.0.00 eee ee eee ee eee e ee eee 92
-6. Classification of Finite Groups..........-...0000eeeeee cee ee 96
-7. Nilpotent and Solvable Groups............2.0: eee e cece ee eee 100
-8. Normal and Subnormal Series.............6.4224200eeee eee ee 107
-Chapter Ill: RIngS.........0... 000. c cece cence eee nee 114
-1, Rings and Homomorphisms.........- 260-0. 00sseeeeeeeee eee 115
-2. Ideals... 22.2... cce cece eee e teenies 122
-3. Factorization in Commutative Rings.................eeee seen 135
-4. Rings of Quotients and Localization............-..6...000e eee 142
-5. Rings of Polynomials and Formal Power Series................ 149
-6. Factorization in Polynomial Rings... ...........000.ceeee eee 157
-Chapter IV: Modules.................. 0.00 cs ecee cece ee eens 168
-1. Modules, Homomorphisms and Exact Sequences ........... 169
-2. Free Modules and Vector Spaces... 2.2... 20.00. ee ee euue 180
-3. Projective and Injective Modules.............. 00000 ee 190
-4. Hom and Duality... 2... 0... ee ee eee 199
-5. Tensor Products..... 22.00 cee ee eee cee eee eee eee 207
-6. Modules over a Principal Ideal Domain.................6 218
-7. Algebras... 6. ee eee eee nee 226
-Chapter V: Fields and Galois Theory..................... 230
-1. Field Extensions. ......... 00000: e eee eeeeee eee e tee ee tees eees 231
-Appendix: Ruler and Compass Constructions. .............- 238
-2. The Fundamental Theorem.............050sceeeeceeeeeeeeeee 243
-Appendix: Symmetric Rational Functions..................+ 252
-3. Splitting Fields, Algebraic Closure and Normality.............. 257
-Appendix: The Fundamental Theorem of Algebra............ 265
-4. The Galois Group of a Polynomial.............0000 0000 ee eee 269
-5. Fimite Fields. ....... 0.06.06 c cece cece ee eee eee eee tree teers 278
-6. Separability.... 0.0.0... ..c ccc eee cee eect tent eeeeee 282
-7. Cyclic Extensions. ............ 00.000 eee eee eee ee tenet e eens 289
-8. Cyclotomic Extensions............0060:e eee eee eee ee eeeee ees 297
-9, Radical Extensions. ............ sss eeeeee tees eee ee eneee eens 302
-Appendix: The General Equation of Degree n............... 307
-Chapter VI: The Structure of Fields....................... 311
-1. Transcendence Bases... .... 2.06... ese cece eee renee teen eee 311
-2, Linear Disjointness and Separability................ 2.0.0.0 eee 318
-TABLE OF CONTENTS xxii
-Chapter Vil: Linear Algebra..................... 0.0 es eeee 327
-1. Matrices and Maps............. 060 cece eee cece eee te nee eee 328
-2. Rank and Equivalence..........--..00sssseeeeeeeeeeeeeseees 335
-Appendix: Abelian Groups Defined by
-Generators and Relations...........-.4+.0+s000+ 343
-3, Determinants. ......... 0... eee eee eee eee teen tees 348
-4, Decomposition of a Single Linear Transformation and Similarity. 355
-5, The Characteristic Polynomial, Eigenvectors and Eigenvalues... . 366
-Chapter Vill: Commutative Rings and Modules........... 371
-1. Chain Conditions. .............. 0000 cece cece cee e eee ee eee ees 372
-2. Prime and Primary Ideals. ........ 26... 00ceceeseeeseeeeeu ee 377
-3. Primary Decomposition............... ccc ce ece eee e een ee eee ee 383
-4, Noetherian Rings and Modules............0..00.00eceeeee eee 387
-5. Ring Extensions........ 660.6660 0 cece cece eee ee teen eee eeeenee 394
-6. Dedekind Domains........... 60.0006 ccc cece cece eee ee eens 400
-7. The Hilbert Nullstellensatz. ...............0.. 00 cee eee eee eee 409
-Chapter IX: The Structure of Rings....................... 414
-1. Simple and Primitive Rings............ 000s sess cee eee ee eens 415
-2. The Jacobson Radical. . 2.2.2... 60... cece cece ence e eee eee eee 424
-3. Semisimple Rings... ..... 06. .... cece cece cece eee e eee eee eens 434
-4, The Prime Radical; Prime and Semiprime Rings............... 444
-5. Algebras... 2.0.2... eee e cece cece cece ee 450
-6. Division Algebras............. 00.0000 cece cece eee e ee en eee e ee 456
-Chapter X: Categories........... 0.0... cece eee cee eee eee 464
-1, Functors and Natural Transformations.................00.005 465
-2. Adjoint Functors...........6000c0cccceseveeueeveveeesueenes 476
-3. Morphisms..... 02.00.00. c cece cece cece ence eee e tent enee 480
-List of Symbols... 6.6... cece eee ee eee teens 485
-Bibliography... 26... c ccc e cece cette eee te ete c ene 489
-U(r rrr 493
+Contents
+Preface to the Second Edition ....................0 0c cece cece ee IX
+Preface to the First Edition ....................0.0000000000- XIII
+1 Introduction ......... 00... eeeeeeee 1
+1.1 Statistical Models ........ 0... cee cee eee eee e ene eenee 1
+1.2 Likelihood Methods........... 0... ccc cece eee eee eeeeee 5
+1.3 Bayesian Methods .......... 0... cece e eee eee eeees 12
+1.4 Deterministic Numerical Methods ...................--+.-- 19
+1.4.1 Optimization ............ 00... e eee eee 19
+1.4.2 Integration ........ 0... cece cece e eee eee 21
+1.4.3 Comparison 2.0.0.0... 0. c cece cece eee eee eeeeee QD
+1.5 Problems ......... 0.0... e cece eee cence ence ene eeneeenee 23
+1.6 Notes 0.0.0... cee cece cece eee e teense eeteeeeee 80
+1.6.1. Prior Distributions ............ 0... cece eee eee eee ee 80
+1.6.2 Bootstrap Methods .............. ec cece cece eee ee ee 82
+2 Random Variable Generation .....................--000-00- 35
+2.1 Introduction ......... 0... cece eee eee eee teen ee BS
+2.1.1 Uniform Simulation.............. 0.0... e eee eee eee 86
+2.1.2 The Inverse Transform ...............0200ee eee eee ee 38
+2.1.3 Alternatives 0.0.00... eee eee eee eee eee es 40
+2.1.4 Optimal Algorithms ...........................0... 41
+2.2 General Transformation Methods..................-.+-++++ 42
+2.3 Accept-Reject Methods ............. 00. c cece cece eee ee eee AT
+2.3.1 The Fundamental Theorem of Simulation............. 47
+2.3.2 The Accept—Reject Algorithm..................-.2+. 51
+2.4 Envelope Accept-Reject Methods.....................2..-. 58
+2.4.1 The Squeeze Principle .................0..0000ee eee 58
+2.4.2 Log-Concave Densities ....................20..00... 56
+2.5 Problems ........... ccc cece e cece eect eee eee eeenaecees 62
+XVIII Contents
+2.6 Notes .... 0... cece eee ee eee nent eenne 12
+2.6.1 The Kiss Generator.............. 0.0 ccc cece cece eee 72
+2.6.2 Quasi-Monte Carlo Methods ........................ 75
+2.6.3 Mixture Representations ....................000005- 77
+3 Monte Carlo Integration..................... 0. ee eee eee 79
+3.1 Introduction ....... 0.0... cece e eee 19
+3.2 Classical Monte Carlo Integration ......................... 88
+3.3 Importance Sampling ............. 0.00. cece eee ee eee eee 90
+3.3.1 Principles ...... 0.0... eee eee eee eee 90
+3.3.2 Finite Variance Estimators ...............0...00004+ 94
+3.3.3 Comparing Importance Sampling with Accept—Reject .. 103
+3.4 Laplace Approximations................ 0... e eee eee eee LOT
+3.5 Problems .......... 0.00. eee cece eee eee eee eee e eee e es L1O
+3.6 Notes 0.0... 0 ccc eee eee eee eet tent e eee e eee LLY
+3.6.1 Large Deviations Techniques........................119
+3.6.2 The Saddlepoint Approximation.....................120
+4 Controling Monte Carlo Variance..........................128
+4.1 Monitoring Variation with the CLT........................128
+4.1.1 Univariate Monitoring .............................124
+4.1.2 Multivariate Monitoring...................2..2.....128
+4.2 Rao-Blackwellization ......... 0... e eee eee ee cee ee ee eee 130
+4.3 Riemann Approximations..............0 000 e eee eee eee ee 184
+4.4 Acceleration Methods .............. 0.00 cece eee ee eee eee 140
+4.4.1 Antithetic Variables ...................0....-2.4..-140
+4.4.2 Control Variates ...... 0.2... ee eee 145
+4.5 Problems ......... 0.0.0. cece cece eee e eee LAT
+4.6 Notes 0.0... ccc e ete e eee LBB
+4.6.1 Monitoring Importance Sampling Convergence ........ 153
+4.6.2 Accept-Reject with Loose Bounds...................154
+46.3 Partitioning ........ 0... ccc eee eee eee ee LBB
+5 Monte Carlo Optimization............................2.4..157
+5.1 Introduction ......... 0... e eee LB
+5.2 Stochastic Exploration ............ 0.0 cece eee ee eee ee ee L5G
+5.2.1 A Basic Solution ........... 0.00. cece eee eee ee LBD
+5.2.2 Gradient Methods ........... 0.00 cece eee eee eee ee 162
+5.2.3 Simulated Annealing............ 00... e eee eee ee ee 163
+5.2.4 Prior Feedback............ 000s cece eee eee eee eee ee 169
+5.3 Stochastic Approximation .......... 0.00... eee eee eee eee LTA
+5.3.1 Missing Data Models and Demarginalization..........174
+5.3.2 The EM Algorithm ......................0..00.-2..176
+5.3.3 Monte Carlo EM ......... 0... eee eee eee ee 183
+5.3.4. EM Standard Errors... 1.0.2.2... 00.0. e eee eee eee 186
+Contents XIX
+
+5.4 Problems .......... 0.00. c cece cece ete eee eee eee ee 188
+5.5 Notes 0.0.0... eee eee teen eee ee 200
+5.5.1 Variations on EM ........... 0.0. eee eee eee eee ee 200
+5.5.2 Neural Networks ........... 0... c cee eee eee eee eee 201
+5.5.3 The Robbins-Monro procedure.....................-201
+5.5.4 Monte Carlo Approximation ........................ 203
+
+6 Markov Chains ............. 0.0... eee ee 205
+6.1 Essentials for MCMC ......... 00... eee eee eee ee eee 206
+6.2 Basic Notions ........... 0... c cece eee eee eee eee ene + 208
+6.3 Irreducibility, Atoms, and Small Sets ......................213
+6.3.1 Irreducibility ....... 0... cece cece eee eee ee 218
+6.3.2 Atoms and Small Sets............. 0000 e cece ee eee ee 214
+6.3.3 Cycles and Aperiodicity ................0.00000005-.217
+6.4 Transience and Recurrence ............ 00.2 e cece ee eee eee 218
+6.4.1 Classification of Irreducible Chains ..................218
+6.4.2 Criteria for Recurrence...............0..0.0 0000006221
+6.4.3 Harris Recurrence ............ 0.0. e cece eee ee eee 221
+6.5 Invariant Measures ..........0 0.0. c cece eee eee ee 228
+6.5.1 Stationary Chains ........... 0.0... e eee eee ee 223
+6.5.2 Kac’s Theorem............. 0. e cece eee eee eee 224
+6.5.3 Reversibility and the Detailed Balance Condition ...... 229
+
+6.6 Ergodicity and Convergence ............... 00: eee eee eee 231
+6.6.1 Ergodicity 0.0.0.0... ccc eee eee ee 281
+6.6.2 Geometric Convergence ............ 0... e eee eee eee 236
+6.6.3 Uniform Ergodicity ........... 0... cee eee eee 237
+6.7 Limit Theorems .......... 0.0.00. cece eee eee eee ee 238
+6.7.1 Ergodic Theorems ............ 0.00.00 eee eee eee eee 240
+6.7.2 Central Limit Theorems.................0.0 eee eee 242
+6.8 Problems .......... 0.0.0. cece eee eee e teen eee ne  24T
+6.9 Notes ..... 0. cece eee teen ee ee ee 258
+6.9.1 Drift Conditions........... 0... cee eee eee eee 258
+6.9.2 Eaton’s Admissibility Condition..................... 262
+6.9.3 Alternative Convergence Conditions ................. 263
+6.9.4 Mixing Conditions and Central Limit Theorems ....... 263
+6.9.5 Covariance in Markov Chains ....................... 265
+
+7 The Metropolis—Hastings Algorithm .......................267
+7.1 The MCMC Principle ............ 0... c cece eee eee 267
+7.2 Monte Carlo Methods Based on Markov Chains ............. 269
+7.3 The Metropolis—Hastings algorithm ........................270
+7.3.1 Definition ....... 0... eee eee eee 270
+7.3.2 Convergence Properties .............0..0.00.0.24...272
+7.4 The Independent Metropolis—Hastings Algorithm ............276
+7.4.1 Fixed Proposals ............ 0... cece eee 216
+XX Contents
+
+7.4.2 A Metropolis—Hastings Version of ARS...............285
+7.5 Random Walks ........... 0c cece cece cece eee eee eee DOF
+7.6 Optimization and Control ........... 0.0 ccc e cece ee ee 292
+7.6.1 Optimizing the Acceptance Rate .................+..292
+7.6.2 Conditioning and Accelerations ..................+..295
+7.6.3 Adaptive Schemes ........... 0.0 c cece eee eee ee ee 299
+7.7 Problems ........ 0... 0c ccc cece ce eect eee eee eee OZ
+0) =< ES 3
+7.8.1 Background of the Metropolis Algorithm .............313
+
+7.8.2 Geometric Convergence of Metropolis—Hastings
+Algorithms 2.0.0.0... 0c c cece cece cece eee eee eee OLS
+7.8.3 A Reinterpretation of Simulated Annealing ...........315
+7.8.4 Reference Acceptance Rates ..............0000002.+.316
+7.8.5 Langevin Algorithms....................000e0000.-- 318
+8 The Slice Sampler .............. ccc cece cece eee Bal
+8.1 Another Look at the Fundamental Theorem ................321
+8.2 The General Slice Sampler........... 60... cece eee eee eee 826
+8.3 Convergence Properties of the Slice Sampler ................329
+8.4 Problems.......... 0... ccc cee eee eee eee BOS
+ESS (0) << 5)
+8.5.1 Dealing with Difficult Slices ........................335
+9 The Two-Stage Gibbs Sampler......................0.044+.337
+9.1 A General Class of Two-Stage Algorithms ..................337
+9.1.1 From Slice Sampling to Gibbs Sampling ..............337
+9.1.2 Definition ...... 0... eee BOD
+9.1.3 Back to the Slice Sampler ................0.20.0.4.-343
+9.1.4 The Hammersley—Clifford Theorem ..................343
+9.2 Fundamental Properties ........... 0.0.0. cece eee eee eee O44
+9.2.1 Probabilistic Structures ......... 006s cece eee B44
+9.2.2 Reversible and Interleaving Chains ..................349
+9.2.3 The Duality Principle................ 0. cece eee eee BEL
+9.3 Monotone Covariance and Rao—Blackwellization.............354
+9.4 The EM-Gibbs Connection .......... 00. c cece eee eee ee eee BOF
+9.5 Transition ........ 0. cece eee eee eee ee eee eee B60
+9.6 Problems .......... ccc cece cece cece ee BOO
+9.7, Notes 00... c cece ccc cece cece eee eee e teeter eens  BO8
+9.7.1 Inference for Mixtures ............. 00. e cece eee ee 366
+9.7.2 ARCH Models ........... 0.0 cece eect eee eee es B68
+10 The Multi-Stage Gibbs Sampler ...........................371
+10.1 Basic Derivations .......... 0... c cece cece e eee eee OTL
+10.1.1 Definition ........ 00. OTL
+10.1.2 Completion ........ 0.0... e cece eee eee ee eee OTS
+Contents XXI
+10.1.3 The General Hammersley—Clifford Theorem ..........376
+10.2 Theoretical Justifications ............ 0.0.0 e cece eee ee eee 378
+10.2.1 Markov Properties of the Gibbs Sampler .............378
+10.2.2 Gibbs Sampling as Metropolis—Hastings ..............381
+10.2.3 Hierarchical Structures ........... 060. c cece eee ee 883
+10.3 Hybrid Gibbs Samplers. ............. 0.000 cece eee ee eee ee 887
+10.3.1 Comparison with Metropolis—Hastings Algorithms ..... 387
+10.3.2 Mixtures and Cycles ......... 00... e eee eee eee 388
+10.3.3 Metropolizing the Gibbs Sampler....................392
+10.4 Statistical Considerations............ 6.0. c cece eee 396
+10.4.1 Reparameterization........... 00... cece cece eee ee 396
+10.4.2 Rao-Blackwellization...........0 00sec cece eee eee 402
+10.4.3 Improper Priors ......... 06.0 e cece eee eee ee 403
+10.5 Problems ......... 00.0 cece cece eee eee eee eee es 407
+10.6 Notes ..... 0... cece cece eee cece eee eee eee ee ALY
+10.6.1 A Bit of Background.............. 0.0 c cece eee ee ALD
+10.6.2 The BUGS Software ....... 0... ccc cece eee eee ee 420
+10.6.3 Nonparametric Mixtures ...............020000000+4-420
+10.6.4 Graphical Models ........... 0.0. e cece eee een ee 422
+
+11 Variable Dimension Models and Reversible Jump
+Algorithms 1.0.0.0... 0.00.00 cece cece cece eee eee en 425
+11.1 Variable Dimension Models .............0... eee e eee eee 425
+11.1.1 Bayesian Model Choice............. 0.00 e ee eee eee A426
+11.1.2 Difficulties in Model Choice................0.00.5+44-427
+11.2 Reversible Jump Algorithms ............. 000.00 cece eee 429
+11.2.1 Green’s Algorithm... ...... 0... cece cece ee 429
+11.2.2 A Fixed Dimension Reassessment ..................-482
+11.2.3 The Practice of Reversible Jump MCMC.............433
+11.3 Alternatives to Reversible Jump MCMC....................444
+11.3.1 Saturation....... 0... cee eee ee ee Add
+11.3.2 Continuous-Time Jump Processes ..............++.+-446
+11.4 Problems .......... 000 e cece cece eee e eee eee Abd
+11.5 Notes... 0... ccc cece eee eee eee n eee eee eee eee 458
+11.5.1 Occam’s Razor..... 0... cee eee eee eee eee 458
+12 Diagnosing Convergence ..............6. 6606 c cece eee eee 459
+12.1 Stopping the Chain ........... 00.0.2 ccc cee eee ene 459
+12.1.1 Convergence Criteria ........... 0.0 c eee e eee ee eee 461
+12.1.2 Multiple Chains ............ 0.0.00. c cece eee eee 464
+12.1.3 Monitoring Reconsidered .............0.0.00 200+ 465
+12.2 Monitoring Convergence to the Stationary Distribution. ...... 465
+12.2.1 A First Illustration .......... 0.0.0 c cee cee eee 465
+12.2.2 Nonparametric Tests of Stationarity .................466
+12.2.3 Renewal Methods ............. 0000 cece eee eee eee ATO
+XXII Contents
+12.2.4 Missing Mass ............ 0.0.00 cece e eee eee eee ATA
+12.2.5 Distance Evaluations .................0.00.020.24..478
+12.3 Monitoring Convergence of Averages ......................- 480
+12.3.1 A First Illustration .......... 0.0.00. c cece eee eee - 480
+12.3.2 Multiple Estimates ....... 000... cece eee ee ee 483
+12.3.3 Renewal Theory............... 0000 c cece eee eee 490
+12.3.4 Within and Between Variances......................497
+12.3.5 Effective Sample Size ............ 0.0.00. e eee eee 499
+12.4 Simultaneous Monitoring ...........0 0... c cece eee eee ee 500
+12.4.1 Binary Control........ 0... cece eee ee eee 00
+12.4.2 Valid Discretization.............. 0... c eee eee eee 508
+12.5 Problems ......... 0... c cece eee eee eee eee teen ee 04
+12.6 Notes .... 00... cece cece cece eee eee eee eee eee 508
+12.6.1 Spectral Analysis.........0. 00... c cece eee ee eee eee 508
+12.6.2 The CODA Software ..............0....0 0002 e eee 509
+13 Perfect Sampling ............. 0... c cece eee eee eee ee DUI
+13.1 Introduction ....... 0.0.0 e eee eee ee DIL
+13.2 Coupling from the Past .......... 0.0... cee eee eee eee ee BIB
+13.2.1 Random Mappings and Coupling ....................513
+13.2.2 Propp and Wilson’s Algorithm ......................516
+13.2.3 Monotonicity and Envelopes ........................-518
+13.2.4 Continuous States Spaces........... 000 cece eee eee ee B23
+13.2.5 Perfect Slice Sampling ...........................-.526
+13.2.6 Perfect Sampling via Automatic Coupling ............530
+13.3 Forward Coupling .......... 0... cece e eee eee eee ee B32
+13.4 Perfect Sampling in Practice ......... 0.0.0... e eee eee ee 585
+13.5 Problems .......... 0... cece eee eee eee eee eee ee ee B86
+13.6 Notes ..... 0. c cece cee cece eet eee BBY
+13.6.1 History ..... 0.0.0. ee BBO
+13.6.2 Perfect Sampling and Tempering ....................540
+14 Iterated and Sequential Importance Sampling .............545
+14.1 Introduction ...... 0... cece eee ee B45
+14.2 Generalized Importance Sampling ..................22+-44-546
+14.3 Particle Systems ....... 0... cece c cece eee eee eee eee DAT
+14.3.1 Sequential Monte Carlo ............ 0.00.00 eee ee BAT
+14.3.2 Hidden Markov Models .............. 00.2 e eee ee BAD
+14.3.3 Weight Degeneracy ............ 0... c cece eee eee BOL
+14.3.4 Particle Filters... 0.0... cee eee eee eee ee BBQ
+14.3.5 Sampling Strategies............ 0.0... cee eee eee eee B54
+14.3.6 Fighting the Degeneracy ...........................556
+14.3.7 Convergence of Particle Systems.....................558
+14.4 Population Monte Carlo .......... 0.0.0. cece eee ee eee ee BBO
+14.4.1 Sample Simulation............ 00.0... c eee eee eee 560
+Contents XXIII
+
+14.4.2 General Iterative Importance Sampling...............560
+
+14.4.3 Population Monte Carlo.....................0......562
+
+14.4.4 An Illustration for the Mixture Model................563
+
+14.4.5 Adaptativity in Sequential Algorithms ...............565
+
+14.5 Problems .......... 0... e cece cette teen eee e eee TO
+14.6 Notes 2.0.0... cece cece eee ee eee ONT
+14.6.1 A Brief History of Particle Systems ..................577
+
+14.6.2 Dynamic Importance Sampling......................577
+
+14.6.3 Hidden Markov Models ............ 0000 e eee ee STO
+
+A Probability Distributions ..................................581
+B_ Notation............ 0... eee O85
+B.1 Mathematical ........ 0.0... ee O85
+B.2. Probability ....... 0... cee cee eee 086
+B.3 Distributions.......... 0... cece cence eee eee 586
+B.4 Markov Chains............ 0. c cece eee eee eee eee O87
+B.5 Statistics 0... eee eee eee ee 088
+B.6 Algorithms ......... 00. cee cee ee ees 088
+References ......... 00. ence tenet e eee OGL
+Index of Names.......... 00... cece cence teen eee ene 623
+Index of Subjects ........... 0. cece eect eee eee O81
