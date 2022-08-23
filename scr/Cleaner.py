@@ -207,7 +207,7 @@ class Interactive_Cleaner:
     def _get_chosen_option(self, options: list[Option]) -> Option:
         """ask user to choose from the option. options are expressed by integers -1,0,1,..."""
         max: int = len(options)
-        user_input: int = click.prompt(text="choose N", type=click.IntRange(-1, max))
+        user_input: int = click.prompt(text="choose N", type=click.IntRange(-1, max), default=1)
         return self._find_option(options=options, user_choice=user_input)
 
     def _find_option(self, options: list[Option], user_choice: int) -> Option:
