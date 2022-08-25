@@ -2,10 +2,9 @@ import os
 import sys
 
 sys.path.append(os.path.join(".", "scr"))
-from typing import TypeAlias
 
 import pytest
-from Page_Corrector import Mediator
+from Mediator import Mediator
 
 # from scr.Page_Corrector import Mediator
 
