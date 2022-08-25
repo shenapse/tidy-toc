@@ -1,14 +1,13 @@
 import abc
 import itertools
-from dataclasses import dataclass
 from typing import Callable, Iterable, Optional
 
 import regex
 from regex import Match, Pattern
 from rich import print
-from typing_extensions import Self
 
-from Mediator import Mediator, Option
+from Choose_from_Integers import Choose_from_Integers
+from Mediator import Candidate, Mediator
 from Text_Line import Paged_Text_Line
 from Text_Lines import Paged_Text_Lines
 
@@ -137,17 +136,7 @@ class Cleaner(ICleaner):
         return self.apply_each_line(pat, line_processor)
 
 
-@dataclass
-class Candidate:
-    text: str
-    idx: int
-
-    @classmethod
-    def to_candidate(cls, candidates: list[str]) -> list[Self]:
-        return [Candidate(text=c, idx=i) for i, c in enumerate(candidates)]
-
-
-class Interactive_Cleaner:
+class Interactive_Cleaner(Choose_from_Integers):
     def __init__(self, cleaner: Cleaner, lines: Paged_Text_Lines) -> None:
         self.cleaner: Cleaner = cleaner
         self.lines: Paged_Text_Lines = lines
@@ -179,39 +168,9 @@ class Interactive_Cleaner:
                 # candidates are sorted in length of their text
         return Candidate.to_candidate(sorted(candidates))
 
-    def _show_candidates(self, line: Paged_Text_Line, candidates: list[Candidate]) -> None:
-        """print correction candidates (for a given row with dust)."""
-        display: str = "\n".join([f"{c.idx} | {c.text}" for c in candidates])
-        print(f"\n{line.text}\n\n{display}\n")
-
-    def _find_candidate(self, idx: int, candidates: list[Candidate]) -> Candidate:
-        for c in candidates:
-            if c.idx == idx:
-                return c
-        raise ValueError(f"there is no candidates with idx={idx} in {candidates}")
-
     def remove_small_dust(self) -> Paged_Text_Lines:
         """interactively remove remaining dust found in some parts of text, showing user many removal patterns."""
-        new_lines: list[Paged_Text_Line] = []
-        delete_idx: list[int] = []
-        if len(self.lines) > 0:
-            self.mediator.explain()
-        for i, line in enumerate(self.find_rows()):
-            candidates: list[Candidate] = self._get_candidates(line)
-            self._show_candidates(line, candidates)
-            user_input, flag = self.mediator.get_user_input(show_msg=(i == 0), default_value=Option.Pass.value)
-            choice = self.mediator.interpret(user_input=user_input, flag=flag)
-            match choice.option:
-                case Option.Pass:
-                    continue
-                case Option.Fill:
-                    line.text = self._find_candidate(idx=choice.number, candidates=candidates).text
-                    new_lines.append(line)
-                case Option.Remove:
-                    delete_idx.append(line.idx)
-                case _:
-                    raise Exception(f"unknown choice type {choice.option}.")
-        return self.lines.exclude(delete_idx).overwrite(new_lines)
+        return self.choose_from_integers()
 
 
 def clean_ja(ptls: Paged_Text_Lines) -> Paged_Text_Lines:
