@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import re
 from enum import IntEnum, auto
-from re import Match, Pattern
 from typing import Final, Iterator, Optional, overload
 
+import regex
+from regex import Match, Pattern
 from textblob import Word  # type: ignore
 from typing_extensions import Self
 
@@ -154,15 +154,15 @@ class Text_Line:
     def test_pattern_at(self, pat: Pattern, at: Optional[int] = None) -> bool:
         """test if 'at'-th word has the pat pattern. if 'at' is None, the default, the whole text is tested."""
         target: str = self.text if at is None else self[at]
-        return re.search(pat, target) is not None
+        return regex.search(pat, target) is not None
 
 
 class Paged_Text_Line(Text_Line):
     page_key: Final[str] = "page"
     roman_page_key: Final[str] = "roman_page"
-    pat_page: Final[Pattern] = re.compile(f"(?P<{page_key}>\\s?[0-9]+)$")
-    pat_roman_page: Final[Pattern] = re.compile(f"(?=\\s|^)\\s?(?P<{roman_page_key}>[ixv]+|[IXV]+)$")
-    pat_word_header: Final[Pattern] = re.compile("^[a-zA-Z]+[\\.,]*$")
+    pat_page: Final[Pattern] = regex.compile(f"(?P<{page_key}>\\s?[0-9]+)$")
+    pat_roman_page: Final[Pattern] = regex.compile(f"(?=\\s|^)\\s?(?P<{roman_page_key}>[ixv]+|[IXV]+)$")
+    pat_word_header: Final[Pattern] = regex.compile("^[a-zA-Z]+[\\.,]*$")
 
     class Header(IntEnum):
         DIGIT = auto()
@@ -237,7 +237,7 @@ class Paged_Text_Line(Text_Line):
 
     def _get_page_number(self) -> int | None:
         """get arabic page number if it exists"""
-        match: Optional[Match] = re.search(self.pat_page, self.text)
+        match: Optional[Match] = regex.search(self.pat_page, self.text)
         return int(match.group(self.page_key)) if match else None
 
     def get_page_string(self) -> str:
@@ -249,7 +249,7 @@ class Paged_Text_Line(Text_Line):
 
     def _get_roman_page_number(self) -> str | None:
         """get roman page number. at the time of writing, this method is designed to be called only if no arabic page number is found."""
-        match: Optional[Match] = re.search(self.pat_roman_page, self.text)
+        match: Optional[Match] = regex.search(self.pat_roman_page, self.text)
         return match.group(self.roman_page_key) if match else None
 
     def is_page_set(self) -> bool:
@@ -265,7 +265,7 @@ class Paged_Text_Line(Text_Line):
             is_arabic_page: bool = self.page_number is not None
             pat: Pattern = self.pat_page if is_arabic_page else self.pat_roman_page
             key: str = self.page_key if is_arabic_page else self.roman_page_key
-            match: Optional[Match] = re.search(pat, self.text)
+            match: Optional[Match] = regex.search(pat, self.text)
             # matches might be empty. it happens, for instance, when page number is directly named in constructor.
             if match:
                 text_end: int = match.start(key)
@@ -274,7 +274,7 @@ class Paged_Text_Line(Text_Line):
 
     def _is_valid_word(self, word: str, confidence: float = 1.0) -> bool:
         """test if the input string completely coincides with some word."""
-        return re.search(self.pat_word_header, word) is not None and Word(word).spellcheck()[0][1] >= confidence
+        return regex.search(self.pat_word_header, word) is not None and Word(word).spellcheck()[0][1] >= confidence
 
     def _get_header_type(self) -> Header:
         """judge header type based on the first word on self.text"""
@@ -282,10 +282,10 @@ class Paged_Text_Line(Text_Line):
         if (self.is_page_set() and n_words <= 2) or (not self.is_page_set() and n_words <= 1):
             return self.Header.NO
         header: str = self[0]
-        if re.search(r"\d+", header):
+        if regex.search(r"\d+", header):
             return self.Header.DIGIT
         elif self._is_valid_word(header):
             return self.Header.WORD
-        elif re.search(r"[a-zA-Z]", header) and len(header) <= 5:
+        elif regex.search(r"[a-zA-Z]", header) and len(header) <= 5:
             return self.Header.ALPHABET
         return self.Header.NO

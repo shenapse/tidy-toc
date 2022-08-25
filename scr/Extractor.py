@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-import re
-from re import Match, Pattern
 from typing import Final, Optional
+
+import regex
+from regex import Match, Pattern
 
 from Text_Line import Paged_Text_Line
 from Text_Lines import Paged_Text_Lines
 
 
 class Extractor:
-    pat_digit: Final[Pattern] = re.compile(r"\d+")
-    pat_abc: Final[Pattern] = re.compile(r"[a-zA-Z]")
+    pat_digit: Final[Pattern] = regex.compile(r"\d+")
+    pat_abc: Final[Pattern] = regex.compile(r"[a-zA-Z]")
 
     def __init__(self, text: list[str] | str | Paged_Text_Lines = []) -> None:
         # lines of text under edit
@@ -39,7 +40,7 @@ class Extractor:
         )
 
     def get_lines_with(self, with_word: str = "content", at_most_n_words: int = 4) -> Paged_Text_Lines:
-        pat: Pattern = re.compile(with_word, re.IGNORECASE)
+        pat: Pattern = regex.compile(with_word, regex.IGNORECASE)
         return Paged_Text_Lines([line for line in self.lines if line.test_pattern_at(pat)])
 
     def get_lines_with_unexpected_roman_number(self) -> Paged_Text_Lines:
@@ -65,10 +66,10 @@ class Extractor:
         return self.lines.select(roman_numbered)
 
     def _get_digit_header(self, header: str) -> list[str]:
-        return re.findall(self.pat_digit, header)
+        return regex.findall(self.pat_digit, header)
 
     def _get_abc_header(self, header: str) -> str:
-        match: Optional[Match] = re.search(self.pat_abc, header)
+        match: Optional[Match] = regex.search(self.pat_abc, header)
         return match.group() if match else ""
 
     def _abc_in_this_order(self, abc_header1: str, abc_header2: str) -> bool:
