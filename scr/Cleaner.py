@@ -1,14 +1,14 @@
 import abc
-import re
+import itertools
 from dataclasses import dataclass
-from enum import IntEnum
-from re import Match, Pattern
-from typing import Callable, Final, Optional
+from typing import Callable, Iterable, Optional
 
-import click
+import regex
+from regex import Match, Pattern
 from rich import print
 from typing_extensions import Self
 
+from Mediator import Mediator, Option
 from Text_Line import Paged_Text_Line
 from Text_Lines import Paged_Text_Lines
 
@@ -41,7 +41,7 @@ class ICleaner(metaclass=abc.ABCMeta):
         """
         new_lines: list[str] = []
         for line in self.lines:
-            matches: list[Match] = list(re.finditer(pat, line.text))
+            matches: list[Match] = list(regex.finditer(pat, line.text))
             if matches != []:
                 new_lines.append(func(matches, line))
             elif skip_blank_line:
@@ -58,24 +58,28 @@ class Cleaner(ICleaner):
     def __init__(
         self,
         dust_pre_defined: list[str] = ["\\.", "\\s"],
-        dust_possible: str = "[a-zA-Z0-9]",
-        lead_exp: str = "(?P<dust_start>[^A-Z])(?<![A-Z])[^A-Z]*?\\s?",
+        dust_possible: str = "[a-zA-Z0-9 -/:-@\\[-~]",
         dust_rep: int = 3,
         weight: int = 1,
+        precedes_dust_characters: str = "[A-Z]",
+        precedes_dust_finder: str = "[a-zA-Z\\s:]",
+        not_follow_dust_finder: str = "\\s?[A-Z]",
     ) -> None:
         self.dust_major: list[str] = dust_pre_defined
         self.dust_possible: str = dust_possible
-        self.lead_exp: str = lead_exp
         self.dust_rep: int = dust_rep
         self.weight: int = weight
+        self.precedes_dust_characters: str = precedes_dust_characters
+        self.precedes_dust_finder: str = precedes_dust_finder
+        self.not_follow_dust_finder: str = not_follow_dust_finder
         self.lines: Paged_Text_Lines = Paged_Text_Lines()
 
-    def get_dust_characters(self) -> list[str]:
+    def get_dust_characters(self, rep: int = 2) -> list[str]:
         """scan whole text and find dust characters"""
         # pre-defined major pattern
         # dust pattern
-        pat = re.compile("(?<=[A-Z]).*?" + "(" + f"{self.dust_possible}" + ")\\1{2,}")
-        dust_redundant: list[str] = re.findall(pat, self.lines.to_text(combine=False))
+        pat = regex.compile(f"(?<={self.precedes_dust_characters}).*?({self.dust_possible})\\1" + "{" + str(rep) + ",}")
+        dust_redundant: list[str] = regex.findall(pat, self.lines.to_text(combine=False))
         return sorted(set(dust_redundant).difference(self.dust_major))
 
     def get_dust_expression(
@@ -84,45 +88,47 @@ class Cleaner(ICleaner):
         add_weight: Optional[int] = None,
         dust_care: list[str] = ["e", "s"],
     ) -> str:
-        """get pre-regexp string for dust pattern.
-        the pattern are generated in a greedy way by those characters that appear too frequently somewhere in the whole text."""
         rep: int = self.dust_rep if rep_default is None else rep_default
         weight: int = self.weight if add_weight is None else add_weight
 
-        def _get_repeat_exp(dust1: str, dust2: str) -> str:
-            # prevent words end with double 's' and 'e' such as "Fr[ee ]", "Succe[ss ]" from being hit
-            r: int = rep + weight if dust1 in dust_care or dust2 in dust_care else rep
-            rep_exp: str = "{" + f"{r}" + ",}"
-            return f"[{dust1}{dust2}]{rep_exp}"  # like [\\t,\\.]{3,}
+        def get_combinations(characters: list[str], r: int) -> Iterable[tuple]:
+            rep: int = min(len(characters), r)
+            rep = max(rep, 1)
+            return itertools.combinations(characters, rep)
 
-        dust_exps: list[str] = []
-        # first, craft dust patterns from pre-defined dust pattern
-        for i, d1 in enumerate(self.dust_major):
-            for j, d2 in enumerate(self.dust_major):
-                if i > j:
-                    dust_exps.append(
-                        _get_repeat_exp(
-                            dust1=d1,
-                            dust2=d2,
-                        )
-                    )
-        for d in self.get_dust_characters():
-            dust_exps.append("|".join([_get_repeat_exp(d, dm) for dm in self.dust_major]))
-        # resulting pattern looks like
-        # [\s\.]{3,}|[0\.]{3,}|...|[e\s]{4,}
-        return "|".join(dust_exps)
+        def need_care(characters: Iterable[str]) -> bool:
+            return len(set(dust_care) & set(characters)) != 0
 
-    def get_dust_finder(self, precede: str = "(?<=[a-zA-Z\\s:])", not_follow: str = "(?!\\s?[A-Z])") -> str:
+        def get_rep(characters: Iterable[str]) -> int:
+            return rep + weight if need_care(characters) else rep
+
+        def get_exp(chrs: Iterable[str]) -> str:
+            return f"[{''.join(chrs)}]" + "{" + f"{get_rep(chrs)}" + ",}"
+
+        dust_exps_majors: list[str] = [get_exp(c) for c in get_combinations(self.dust_major, rep)]
+        dust_exp_mixed: list[str] = [
+            get_exp(list(c) + [d])
+            for c in get_combinations(self.dust_major, rep - 1)
+            for d in self.get_dust_characters()
+        ]
+        return "|".join(dust_exps_majors + dust_exp_mixed)
+
+    def get_dust_finder(self) -> str:
         """
         get pre-regex string for leading text + dusts + page_number.
         dust + page_number part is accessible by 'dust_start' keyword
         via Match object.
         """
         dust_exp: str = f"(?=\\s?{self.get_dust_expression()})"
-        return precede + dust_exp + f"(?P<{self.dust_pos}>.*)" + not_follow
+        return (
+            f"(?<={self.precedes_dust_finder})"
+            + dust_exp
+            + f"(?P<{self.dust_pos}>.*)"
+            + f"(?!{self.not_follow_dust_finder})"
+        )
 
     def remove_dusts(self) -> Paged_Text_Lines:
-        pat: Pattern = re.compile(self.get_dust_finder())
+        pat: Pattern = regex.compile(self.get_dust_finder())
 
         def line_processor(ms: list[Match], line: Paged_Text_Line) -> str:
             dust_border: int = min([m.start(Cleaner.dust_pos) for m in ms])
@@ -131,121 +137,91 @@ class Cleaner(ICleaner):
         return self.apply_each_line(pat, line_processor)
 
 
+@dataclass
+class Candidate:
+    text: str
+    idx: int
+
+    @classmethod
+    def to_candidate(cls, candidates: list[str]) -> list[Self]:
+        return [Candidate(text=c, idx=i) for i, c in enumerate(candidates)]
+
+
 class Interactive_Cleaner:
-    _highlight: Final[str] = "magenda"
-
-    class Choice(IntEnum):
-        Remove = -1
-        Skip = 0
-
-        @classmethod
-        def values(cls) -> list[int]:
-            return [c.value for c in cls]
-
-        @classmethod
-        def lookup(cls, x: int) -> Self:
-            for c in cls:
-                if c == x:
-                    return c
-            raise ValueError(f"x={x} points nothing in {cls.__name__} whose values are {cls.values()}.")
-
-        @classmethod
-        def generate_msg(cls, choice: int) -> str:
-            match choice:
-                case -1:
-                    return "Remove this row."
-                case 0:
-                    return "Skip"
-                case _:
-                    raise ValueError(
-                        f"choice={choice} points nothing in {cls.__name__} whose values are {cls.values()}."
-                    )
-
-    @dataclass
-    class Option:
-        msg: str
-        idx: int
-
     def __init__(self, cleaner: Cleaner, lines: Paged_Text_Lines) -> None:
         self.cleaner: Cleaner = cleaner
+        self.lines: Paged_Text_Lines = lines
         self.pat_row: Pattern = self._generate_patterns(reps=[cleaner.dust_rep], weights=[self.cleaner.weight])[0]
         self.pats_cand: list[Pattern] = self._generate_patterns()
-        self.lines: Paged_Text_Lines = lines
+        self.mediator: Mediator = Mediator(public_options=["p", "r"], private_options=["f"], max_page=100)
 
     def _generate_patterns(self, reps: list[int] = [2, 3], weights: list[int] = [0, 1]) -> list[Pattern]:
         """generate patterns of different ability to detect dust. Used for providing several options to correct words with dust."""
         return [
-            re.compile(self.cleaner.get_dust_expression(rep_default=r, add_weight=w)) for r in reps for w in weights
+            regex.compile(self.cleaner.get_dust_expression(rep_default=r, add_weight=w)) for r in reps for w in weights
         ]
 
     def find_rows(self) -> Paged_Text_Lines:
         """find rows that match the dust pattern."""
         return Paged_Text_Lines([line for line in self.lines if line.test_pattern_at(self.pat_row)])
 
-    def _generate_color_block(self) -> tuple[str, str]:
-        return f"[{self._highlight}/]", "[/]"
-
-    def _get_candidates(self, line: Paged_Text_Line) -> list[str]:
+    def _get_candidates(self, line: Paged_Text_Line) -> list[Candidate]:
         """get candidate strings for substituting line.text."""
         candidates: set[str] = set()
         for pat in self.pats_cand:
-            for match in re.finditer(pat, line.text):
+            for match in regex.finditer(pat, line.text):
                 dust_pos: int = match.start(0)
                 # candidate string hit by regexp
                 candidates.add(line.text[:dust_pos])
-                # candidate that's present before the word hit by regexp
+                # candidate words that precedes the word hit by regexp
                 word_pos, _ = line.lookup_word(dust_pos)
                 candidates.add(line.sep.join(line[:word_pos]))
-        return sorted(candidates)
+                # candidates are sorted in length of their text
+        return Candidate.to_candidate(sorted(candidates))
 
-    def _show_options(self, options: list[Option]) -> None:
+    def _show_candidates(self, line: Paged_Text_Line, candidates: list[Candidate]) -> None:
         """print correction candidates (for a given row with dust)."""
-        begin, end = self._generate_color_block()
-        display: str = "\n".join([f"{begin}N={o.idx}{end} | {o.msg}" for o in options])
-        print(display)
+        display: str = "\n".join([f"{c.idx} | {c.text}" for c in candidates])
+        print(f"\n{line.text}\n\n{display}\n")
 
-    def _get_chosen_option(self, options: list[Option]) -> Option:
-        """ask user to choose from the option. options are expressed by integers -1,0,1,..."""
-        max: int = len(options)
-        user_input: int = click.prompt(text="choose N", type=click.IntRange(-1, max), default=1)
-        return self._find_option(options=options, user_choice=user_input)
-
-    def _find_option(self, options: list[Option], user_choice: int) -> Option:
-        for option in options:
-            if user_choice == option.idx:
-                return option
-        sep = "\n"
-        raise ValueError(
-            f"no option is found with idx={user_choice} in option={sep.join([str(option) for option in options])}"
-        )
-
-    def _interpret(self, option: Option) -> int | Choice:
-        return self.Choice.lookup(option.idx) if option.idx in Interactive_Cleaner.Choice.values() else option.idx
-
-    def _generate_user_options(self, candidates: list[str]) -> list[Option]:
-        options_c = self._generate_predefined_options()
-        start: int = max([o.idx for o in options_c]) + 1
-        return options_c + [self.Option(msg=c, idx=i + start) for i, c in enumerate(candidates)]
-
-    def _generate_predefined_options(self) -> list[Option]:
-        return [self.Option(msg=self.Choice.generate_msg(c), idx=c.value) for c in Interactive_Cleaner.Choice]
+    def _find_candidate(self, idx: int, candidates: list[Candidate]) -> Candidate:
+        for c in candidates:
+            if c.idx == idx:
+                return c
+        raise ValueError(f"there is no candidates with idx={idx} in {candidates}")
 
     def remove_small_dust(self) -> Paged_Text_Lines:
-        lines_to_replace: list[Paged_Text_Line] = []
-        lines_to_delete: list[int] = []
-        for line in self.find_rows():
-            candidates: list[str] = self._get_candidates(line)
-            options: list[Interactive_Cleaner.Option] = self._generate_user_options(candidates)
-            self._show_options(options)
-            # let user choose from them
-            # interpret the user choice
-            option = self._get_chosen_option(options=options)
-            user_choice: int | Interactive_Cleaner.Choice = self._interpret(option)
-            if isinstance(user_choice, int):
-                # user
-                line.text = option.msg
-                lines_to_replace.append(line)
-            elif user_choice == self.Choice.Remove:
-                # delete
-                lines_to_delete.append(line.idx)
-        return self.lines.exclude(lines_to_delete).overwrite(lines_to_replace)
+        """interactively remove remaining dust found in some parts of text, showing user many removal patterns."""
+        new_lines: list[Paged_Text_Line] = []
+        delete_idx: list[int] = []
+        if len(self.lines) > 0:
+            self.mediator.explain()
+        for i, line in enumerate(self.find_rows()):
+            candidates: list[Candidate] = self._get_candidates(line)
+            self._show_candidates(line, candidates)
+            user_input, flag = self.mediator.get_user_input(show_msg=(i == 0), default_value=Option.Pass.value)
+            choice = self.mediator.interpret(user_input=user_input, flag=flag)
+            match choice.option:
+                case Option.Pass:
+                    continue
+                case Option.Fill:
+                    line.text = self._find_candidate(idx=choice.number, candidates=candidates).text
+                    new_lines.append(line)
+                case Option.Remove:
+                    delete_idx.append(line.idx)
+                case _:
+                    raise Exception(f"unknown choice type {choice.option}.")
+        return self.lines.exclude(delete_idx).overwrite(new_lines)
+
+
+def clean_ja(ptls: Paged_Text_Lines) -> Paged_Text_Lines:
+    c = Cleaner(
+        dust_pre_defined=["\\s", "\\.", "…", ",", "．", "，", "‥", "・", "･", "●"],
+        dust_possible="[0-9a-zA-Z -/:-@\\[-~]",
+        precedes_dust_characters=r"[a-zA-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+        precedes_dust_finder=r"[a-zA-Z\s:\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+        not_follow_dust_finder=r"[A-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+    )
+    c.read_lines(ptls)
+    print(c.get_dust_expression())
+    return c.remove_dusts()

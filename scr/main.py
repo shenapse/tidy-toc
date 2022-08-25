@@ -26,14 +26,31 @@ def get_new_file_name(file: Path, prefix: str = "", suffix: str = "", join_with:
     return f"{join_with.join([prefix,file.stem,suffix])}{file.suffix}"
 
 
-def apply_clean(ptls: Paged_Text_Lines, clean_dust: bool = True) -> Paged_Text_Lines:
+def apply_clean(ptls: Paged_Text_Lines, clean_dust: bool = True, ja: bool = False) -> Paged_Text_Lines:
     if clean_dust:
-        c = Cleaner()
-        c.read_lines(ptls)
-        ptls = c.remove_dusts()
-        ic = Interactive_Cleaner(cleaner=c, lines=ptls)
-        ptls = ic.remove_small_dust()
+        if ja:
+            ptls = apply_clean_ja(ptls)
+        else:
+            c = Cleaner()
+            c.read_lines(ptls)
+            ptls = c.remove_dusts()
+            ic = Interactive_Cleaner(cleaner=c, lines=ptls)
+            ptls = ic.remove_small_dust()
     return ptls.format_space()
+
+
+def apply_clean_ja(ptls: Paged_Text_Lines) -> Paged_Text_Lines:
+    c = Cleaner(
+        dust_pre_defined=["\\s", "\\.", "…", ",", "．", "，", "‥", "・", "･", "●"],
+        dust_possible="[0-9a-zA-Z -/:-@\\[-~]",
+        precedes_dust_characters=r"[a-zA-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+        precedes_dust_finder=r"[a-zA-Z\s:\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+        not_follow_dust_finder=r"[A-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+    )
+    c.read_lines(ptls)
+    ptls = c.remove_dusts()
+    ic = Interactive_Cleaner(c, ptls)
+    return ic.remove_small_dust()
 
 
 def apply_select(ptls: Paged_Text_Lines, select_line: bool = True, max_line: int = 10) -> Paged_Text_Lines:
@@ -81,6 +98,7 @@ def tidy(
     select_line: bool = True,
     merge_line: bool = True,
     correct_page_number: bool = True,
+    ja: bool = False,
     max_line: int = 10,
     dir: Path | str | None = None,
     prefix: str = "",
@@ -94,7 +112,7 @@ def tidy(
         text: str = f.read()
         ptls = Paged_Text_Lines(text)
         assert isinstance(ptls, Paged_Text_Lines)
-        ptls = apply_clean(ptls, clean_dust=clean_dust)
+        ptls = apply_clean(ptls, clean_dust=clean_dust, ja=ja)
         ptls = apply_select(ptls, select_line=select_line, max_line=max_line)
         ptls = apply_merge(ptls, merge_line=merge_line)
         ptls = apply_page_correct(ptls, correct_page_number)

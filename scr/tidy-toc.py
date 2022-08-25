@@ -37,6 +37,12 @@ from main import tidy
     help="point out badly page-numbered rows and correct them interactively.",
 )
 @click.option(
+    "--ja",
+    type=bool,
+    is_flag=True,
+    help="Japanese language mode. Currently supported only for clean method.",
+)
+@click.option(
     "-l",
     "--maxline",
     type=int,
@@ -81,6 +87,7 @@ def tidy_toc(
     select: bool,
     merge: bool,
     page: bool,
+    ja: bool,
     maxline: int,
     dirout: str | None,
     pre: str,
@@ -94,6 +101,7 @@ def tidy_toc(
         select_line=select,
         merge_line=merge,
         correct_page_number=page,
+        ja=ja,
         max_line=maxline,
         dir=dirout,
         prefix=pre,
