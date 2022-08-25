@@ -11,6 +11,8 @@
 /**/.pytest_cache
 !/scr/Cleaner.py
 !/scr/Mediator.py
+!/scr/Spacer.py
+!/scr/Choose_from_Integers.py
 !/scr/Extractor.py
 !/scr/Page_Corrector.py
 !/scr/Merger.py

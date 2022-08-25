@@ -4,13 +4,23 @@ import re
 from dataclasses import dataclass
 from enum import Enum, IntEnum, auto
 from re import Pattern
-from typing import Optional
+from typing import Iterable, Optional
 
 import click
 from rich import print
 from typing_extensions import Self
 
 from Text_Lines import Texts_Printer
+
+
+@dataclass
+class Candidate:
+    text: str
+    idx: int
+
+    @classmethod
+    def to_candidate(cls, candidates: list[str]) -> list[Self]:
+        return [Candidate(text=c, idx=i) for i, c in enumerate(candidates)]
 
 
 class Option(Enum):
@@ -99,11 +109,13 @@ class Mediator:
 
     def get_user_input(
         self,
-        msg: str = "enter action. default =",
+        msg: Optional[str] = None,
         default_value: int | str = Option.Pass.value,
+        domain: Optional[Iterable[int]] = None,
         show_msg: bool = True,
     ) -> tuple[int | str, Mediator.Integer_Flag]:
         """ask user to enter some input that represents her choice."""
+        msg = "enter action. default =" if msg is None else msg
         msg = msg if show_msg else ""
         while True:
             ret: tuple[int | str | None, Mediator.Integer_Flag] = click.prompt(
@@ -112,7 +124,11 @@ class Mediator:
             inp, flag = ret
             if inp is None:
                 continue
-            if isinstance(inp, int) and not self._test_range(value=inp):
-                print(f"input integer x must be {-self._max_page}<=x<={self._max_page}.")
-                continue
+            if isinstance(inp, int):
+                if domain is not None and inp not in (d := list(domain)):
+                    print(f"input integer x must be in {d}.")
+                    continue
+                if not self._test_range(value=inp):
+                    print(f"input integer x must be {-self._max_page}<=x<={self._max_page}.")
+                    continue
             return inp, flag
