@@ -5,6 +5,7 @@ from Filtering_Prompt import Prompt
 from Interpreter import Interpreter
 from Merger import Merger
 from Page_Corrector import Correct, Fill
+from Spacer import Insert_Space, Remove_Space
 from Text_Lines import Paged_Text_Lines
 from Type_Alias import Path, Save_Result
 
@@ -92,6 +93,15 @@ def apply_page_correct(ptls: Paged_Text_Lines, correct_page: bool) -> Paged_Text
     return ptls
 
 
+def insert_space(ptls: Paged_Text_Lines, ja: bool) -> Paged_Text_Lines:
+    if ja:
+        inserter = Insert_Space(ptls)
+        ptls = inserter.get_rows_space_inserted()
+        remover = Remove_Space(ptls)
+        ptls = remover.get_rows_space_removed()
+    return ptls
+
+
 def tidy(
     text_file: Path | str,
     clean_dust: bool = True,
@@ -116,6 +126,7 @@ def tidy(
         ptls = apply_select(ptls, select_line=select_line, max_line=max_line)
         ptls = apply_merge(ptls, merge_line=merge_line)
         ptls = apply_page_correct(ptls, correct_page_number)
+        ptls = insert_space(ptls, ja=ja)
         text_processed: str = ptls.to_text()
         # saving procedure
         dir_out: Path = file.parent if dir is None else Path(dir)
