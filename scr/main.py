@@ -93,8 +93,8 @@ def apply_page_correct(ptls: Paged_Text_Lines, correct_page: bool) -> Paged_Text
     return ptls
 
 
-def insert_space(ptls: Paged_Text_Lines, ja: bool) -> Paged_Text_Lines:
-    if ja:
+def insert_space(ptls: Paged_Text_Lines, spacing: bool) -> Paged_Text_Lines:
+    if spacing:
         inserter = Insert_Space(ptls)
         ptls = inserter.get_rows_space_inserted()
         remover = Remove_Space(ptls)
@@ -109,6 +109,7 @@ def tidy(
     merge_line: bool = True,
     correct_page_number: bool = True,
     ja: bool = False,
+    spacing: bool = False,
     max_line: int = 10,
     dir: Path | str | None = None,
     prefix: str = "",
@@ -126,7 +127,7 @@ def tidy(
         ptls = apply_select(ptls, select_line=select_line, max_line=max_line)
         ptls = apply_merge(ptls, merge_line=merge_line)
         ptls = apply_page_correct(ptls, correct_page_number)
-        ptls = insert_space(ptls, ja=ja)
+        ptls = insert_space(ptls, spacing=spacing)
         text_processed: str = ptls.to_text()
         # saving procedure
         dir_out: Path = file.parent if dir is None else Path(dir)

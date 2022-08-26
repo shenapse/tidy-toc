@@ -30,6 +30,11 @@ def data_sample_candidates_remove() -> list[tuple[str, str]]:
     return [("8. 付 録録", "8. 付録録"), ("第I章 実数と連続", "第I章 実数と連続")]
 
 
+@pytest.fixture
+def data_sample_candidates_remove_pass() -> list[str]:
+    return ["第I章 実数と連続", "第x節 実数と連続", "第I部 実数と連続"]
+
+
 def test_candidates_insert(data_sample_candidates_insert):
     inserter = Insert_Space(Paged_Text_Lines())
     for sample, cand in data_sample_candidates_insert:
@@ -45,3 +50,9 @@ def test_candidates_remove(data_sample_candidates_remove):
         print(remover._get_where_to_remove(line))
         cands: list[str] = [c.text for c in remover._get_candidates(line)]
         assert cand in cands
+
+
+def test_candidates_remove_pass(data_sample_candidates_remove_pass):
+    for sample in data_sample_candidates_remove_pass:
+        remover = Remove_Space(Paged_Text_Lines(sample))
+        assert remover.find_rows() == []

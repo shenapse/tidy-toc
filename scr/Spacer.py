@@ -12,9 +12,9 @@ from Text_Lines import Paged_Text_Lines
 class Insert_Space(Choose_from_Integers):
     pat_need_space: Pattern = regex.compile("(?<=[a-z])[A-Z]")
 
-    def __init__(self, lines: Paged_Text_Lines, opttions_max: int = 100) -> None:
+    def __init__(self, lines: Paged_Text_Lines, options_max: int = 100) -> None:
         self.lines: Paged_Text_Lines = lines
-        self.mediator = Mediator(public_options=["p", "r"], private_options=["f"], max_page=opttions_max)
+        self.mediator = Mediator(public_options=["p", "r"], private_options=["f"], max_page=options_max)
 
     def get_rows_space_inserted(self) -> Paged_Text_Lines:
         """interactively insert space where a lower character is followed by an Upper character with no space between."""
@@ -54,11 +54,11 @@ class Insert_Space(Choose_from_Integers):
 
 
 class Remove_Space(Choose_from_Integers):
-    pat_need_space: Pattern = regex.compile("(?<=[^\x01-\x7E])[ \\s]+[^\x01-\x7E]")
+    pat_need_space: Pattern = regex.compile("(?<=[^\x01-\x7E部章節])[ \\s]+[^\x01-\x7E]")
 
-    def __init__(self, lines: Paged_Text_Lines, opttions_max: int = 100) -> None:
+    def __init__(self, lines: Paged_Text_Lines, options_max: int = 100) -> None:
         self.lines: Paged_Text_Lines = lines
-        self.mediator = Mediator(public_options=["p", "r"], private_options=["f"], max_page=opttions_max)
+        self.mediator = Mediator(public_options=["p", "r"], private_options=["f"], max_page=options_max)
 
     def get_rows_space_removed(self) -> Paged_Text_Lines:
         """interactively insert space where a lower character is followed by an Upper character with no space between."""
@@ -88,8 +88,8 @@ class Remove_Space(Choose_from_Integers):
             add = 0
             for c in where_to_remove:
                 end_first: int = c + add
-                start_secnod = end_first + 1
-                text = text[:end_first] + text[start_secnod:]
+                start_second = end_first + 1
+                text = text[:end_first] + text[start_second:]
                 add -= 1
             return text
 

@@ -43,6 +43,13 @@ from main import tidy
     help="Japanese language mode. Currently supported only for clean method.",
 )
 @click.option(
+    "-a",
+    "--adjust",
+    type=bool,
+    is_flag=True,
+    help="whether to adjust spacing. This option is recommended for Japanese text.",
+)
+@click.option(
     "-l",
     "--maxline",
     type=int,
@@ -88,6 +95,7 @@ def tidy_toc(
     merge: bool,
     page: bool,
     ja: bool,
+    adjust: bool,
     maxline: int,
     dirout: str | None,
     pre: str,
@@ -102,6 +110,7 @@ def tidy_toc(
         merge_line=merge,
         correct_page_number=page,
         ja=ja,
+        spacing=adjust,
         max_line=maxline,
         dir=dirout,
         prefix=pre,
