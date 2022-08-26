@@ -140,32 +140,37 @@ class Interactive_Cleaner(Choose_from_Integers):
     def __init__(self, cleaner: Cleaner, lines: Paged_Text_Lines) -> None:
         self.cleaner: Cleaner = cleaner
         self.lines: Paged_Text_Lines = lines
-        self.pat_row: Pattern = self._generate_patterns(reps=[cleaner.dust_rep], weights=[self.cleaner.weight])[0]
-        self.pats_cand: list[Pattern] = self._generate_patterns()
+        self.pat_row: list[Pattern] = [self._generate_trailing_dust_pattern()] + [
+            self._generate_weak_patterns(reps=[cleaner.dust_rep], weights=[self.cleaner.weight])[0]
+        ]
+        self.pats_cand: list[Pattern] = self._generate_weak_patterns() + [self._generate_trailing_dust_pattern()]
         self.mediator: Mediator = Mediator(public_options=["p", "r"], private_options=["f"], max_page=100)
 
-    def _generate_patterns(self, reps: list[int] = [2, 3], weights: list[int] = [0, 1]) -> list[Pattern]:
+    def _generate_weak_patterns(self, reps: list[int] = [2, 3], weights: list[int] = [0, 1]) -> list[Pattern]:
         """generate patterns of different ability to detect dust. Used for providing several options to correct words with dust."""
         return [
             regex.compile(self.cleaner.get_dust_expression(rep_default=r, add_weight=w)) for r in reps for w in weights
         ]
 
+    def _generate_trailing_dust_pattern(self) -> Pattern:
+        return regex.compile(f"[{''.join(self.cleaner.get_dust_characters() + self.cleaner.dust_major)}]+?$")
+
     def find_rows(self) -> Paged_Text_Lines:
         """find rows that match the dust pattern."""
-        return Paged_Text_Lines([line for line in self.lines if line.test_pattern_at(self.pat_row)])
+        return Paged_Text_Lines([line for line in self.lines if any(line.test_pattern_at(pat) for pat in self.pat_row)])
 
     def _get_candidates(self, line: Paged_Text_Line) -> list[Candidate]:
         """get candidate strings for substituting line.text."""
         candidates: set[str] = set()
         for pat in self.pats_cand:
             for match in regex.finditer(pat, line.text):
-                dust_pos: int = match.start(0)
-                # candidate string hit by regexp
-                candidates.add(line.text[:dust_pos])
-                # candidate words that precedes the word hit by regexp
-                word_pos, _ = line.lookup_word(dust_pos)
-                candidates.add(line.sep.join(line[:word_pos]))
-                # candidates are sorted in length of their text
+                for start in match.starts():
+                    # candidate string hit by regexp
+                    candidates.add(line.text[:start])
+                    # candidate words that precedes the word hit by regexp
+                    word_pos, _ = line.lookup_word(start)
+                    candidates.add(line.sep.join(line[:word_pos]))
+        # candidates are sorted in length of their text
         return Candidate.to_candidate(sorted(candidates))
 
     def remove_small_dust(self) -> Paged_Text_Lines:
@@ -175,7 +180,7 @@ class Interactive_Cleaner(Choose_from_Integers):
 
 def clean_ja(ptls: Paged_Text_Lines) -> Paged_Text_Lines:
     c = Cleaner(
-        dust_pre_defined=["\\s", "\\.", "…", ",", "．", "，", "‥", "・", "･", "●"],
+        dust_pre_defined=["\\s", "\\.", "…", ",", "．", "，", "‥", "・", "･", "●", "\\-"],
         dust_possible="[0-9a-zA-Z -/:-@\\[-~]",
         precedes_dust_characters=r"[a-zA-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
         precedes_dust_finder=r"[a-zA-Z\s:\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",

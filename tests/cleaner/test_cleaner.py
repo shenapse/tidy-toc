@@ -28,6 +28,7 @@ def data_cleaner() -> list[tuple[str, str]]:
         ("1.1.1 Ideals... 22.2... cce cece eee e teenies 122", "1.1.1 Ideals 122"),
         ("1.1.1 Free......222.2... cce cece eee", "1.1.1 Free"),
         ("1.1.1 Free ......222.2... cce cece eee", "1.1.1 Free"),
+        ("1.1.1 Free .. ", "1.1.1 Free"),
     ]
 
 
