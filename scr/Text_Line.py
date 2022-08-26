@@ -151,9 +151,9 @@ class Text_Line:
     def get_number_of_words(self) -> int:
         return len(self._words)
 
-    def test_pattern_at(self, pat: Pattern, at: Optional[int] = None) -> bool:
+    def test_pattern_at(self, pat: Pattern, at: Optional[int | slice] = None) -> bool:
         """test if 'at'-th word has the pat pattern. if 'at' is None, the default, the whole text is tested."""
-        target: str = self.text if at is None else self[at]
+        target: str = self.text if at is None else self.sep.join(self[at])
         return regex.search(pat, target) is not None
 
 
@@ -289,3 +289,9 @@ class Paged_Text_Line(Text_Line):
         elif regex.search(r"[a-zA-Z]", header) and len(header) <= 5:
             return self.Header.ALPHABET
         return self.Header.NO
+
+    def get_text_without_header(self) -> str:
+        return self.sep.join([w for w in self[1:]])
+
+    def get_pure_text(self) -> str:
+        return self.get_text_without_header() if self.header in [self.Header.ALPHABET, self.Header.DIGIT] else self.text
