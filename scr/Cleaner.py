@@ -61,7 +61,7 @@ class Cleaner(ICleaner):
 
     def __init__(
         self,
-        dust_pre_defined: list[str] = ["\\.", "\\s"],
+        dust_pre_defined: list[str] = ["\\.", "\\s", "0"],
         dust_possible: str = "[a-zA-Z0-9 -/:-@\\[-~]",
         dust_rep: int = 3,
         weight: int = 1,
@@ -163,7 +163,9 @@ class Interactive_Cleaner(Choose_from_Integers):
 
     def find_rows(self) -> Paged_Text_Lines:
         """find rows that match the dust pattern."""
-        return Paged_Text_Lines([line for line in self.lines if any(line.test_pattern_at(pat) for pat in self.pat_row)])
+        return Paged_Text_Lines(
+            [line for line in self.lines if any(regex.search(pat, line.get_pure_text()) for pat in self.pat_row)]
+        )
 
     def _is_trivial_candidate(self, line: Paged_Text_Line, start: int) -> bool:
         """check whether line.text[:start] is a worthy candidate."""
@@ -181,9 +183,9 @@ class Interactive_Cleaner(Choose_from_Integers):
                     # candidate string hit by regexp
                     if not self._is_trivial_candidate(line, start):
                         candidates.add(line.text[:start])
-                    # candidate words that precedes the word hit by regexp
-                    # word_pos, _ = line.lookup_word(start)
-                    # candidates.add(line.sep.join(line[:word_pos]))
+                        # candidate words that precedes the word hit by regexp
+                        word_pos, _ = line.lookup_word(start)
+                        candidates.add(line.sep.join(line[:word_pos]))
         # candidates are sorted in length of their text
         return Candidate.to_candidate(sorted(candidates))
 
@@ -196,6 +198,7 @@ class Interactive_Cleaner(Choose_from_Integers):
         # L==1
         if (c := candidates[0]).text == "" or len(c.text) >= len(line.text):
             return True
+        # test if
         cand_end: int = len(c.text)
         diff: str = line.text[cand_end:]
         pat: Pattern = regex.compile(f"[^{''.join(self.cleaner.get_dust_characters() + self.cleaner.dust_major)}]")
@@ -239,6 +242,23 @@ class Cleaner_ja(Cleaner):
             precedes_dust_finder,
             not_follow_dust_finder,
         )
+
+
+class Interactive_Cleaner_ja(Interactive_Cleaner):
+    def _get_candidates(self, line: Paged_Text_Line) -> list[Candidate]:
+        """get candidate strings for substituting line.text."""
+        candidates: set[str] = set()
+        for pat in self.pats_cand:
+            for match in regex.finditer(pat, line.text):
+                for start in match.starts():
+                    # candidate string hit by regexp
+                    if not self._is_trivial_candidate(line, start):
+                        candidates.add(line.text[:start])
+                        # candidate words that precedes the word hit by regexp
+                        # word_pos, _ = line.lookup_word(start)
+                        # candidates.add(line.sep.join(line[:word_pos]))
+        # candidates are sorted in length of their text
+        return Candidate.to_candidate(sorted(candidates))
 
 
 def clean_ja(ptls: Paged_Text_Lines) -> Paged_Text_Lines:

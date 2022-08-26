@@ -42,6 +42,7 @@ class Choose_from_Integers(metaclass=abc.ABCMeta):
         raise ValueError(f"there is no candidates with idx={idx} in {candidates}")
 
     def _get_what_chosen(self, choice: Choice) -> str:
+        """generate string that describes the choice for printing it."""
         if choice.option == Option.Fill:
             return "this"
         if choice.option in [Option.Pass, Option.Remove]:
@@ -68,7 +69,8 @@ class Choose_from_Integers(metaclass=abc.ABCMeta):
         print(f"{len(rows)} cases found.")
         for i, line in enumerate(rows):
             candidates: list[Candidate] = self._get_candidates(line)
-            self._show_candidates(line, candidates)
+            if len(candidates) > 0:
+                self._show_candidates(line, candidates)
             msg: Optional[str] = None if i == 0 else f"({(i+1)}/{len(rows)})"
             choice = self._get_choice(line, candidates, msg)
             match choice.option:
