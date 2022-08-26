@@ -23,7 +23,7 @@ class Merger:
         self._printer.print(
             self.lines, start=idx_pos, end=idx_pos + 1, with_page_idx=False, with_def=False, with_N=False
         )
-        return click.prompt(text="merge these rows?", type=bool)
+        return click.prompt(text="merge these rows?", type=bool, default="yes")
 
     def _map_between(self, fn: Callable[[Paged_Text_Line, Paged_Text_Line], int]) -> Iterator[int]:
         """process each pair of two neighboring elements"""
