@@ -4,7 +4,7 @@ import regex
 from regex import Pattern
 
 from Choose_from_Integers import Choose_from_Integers
-from Mediator import Candidate, Mediator
+from Mediator import Candidate, Choice, Mediator, Option
 from Text_Line import Paged_Text_Line
 from Text_Lines import Paged_Text_Lines
 
@@ -77,8 +77,18 @@ class Remove_Space(Choose_from_Integers):
         )
         combinations: list[list[int]] = []
         for r in range(len(starts) + 1):
-            combinations.extend([list(c) for c in itertools.combinations(starts, r)])
+            combinations.extend([list(c) for c in itertools.combinations(starts, r) if c != []])
         return combinations
+
+    def _is_trivial_candidate(self, line: Paged_Text_Line, new_text: str) -> bool:
+        """check whether new_text is a worthy candidate."""
+        # trivial if it is exactly the same as line
+        if line.text == new_text:
+            return True
+        # trivial if it has digit header and has a single word part
+        if line.header == line.Header.DIGIT and any(len(w) == 1 for i, w in enumerate(new_text.split()) if i > 0):
+            return True
+        return False
 
     def _get_candidates(self, line: Paged_Text_Line) -> list[Candidate]:
         """suggest new strings by which an input line might be replaced."""
@@ -93,6 +103,33 @@ class Remove_Space(Choose_from_Integers):
                 add -= 1
             return text
 
-        return Candidate.to_candidate(
-            [remove_space(text=line.text, where_to_remove=at) for at in self._get_where_to_remove(line)]
-        )
+        cands: list[str] = []
+        for at in self._get_where_to_remove(line):
+            new_text: str = remove_space(text=line.text, where_to_remove=at)
+            if not self._is_trivial_candidate(line, new_text):
+                cands.append(new_text)
+        return Candidate.to_candidate(cands)
+
+    def _test_trivial_candidate(self, line: Paged_Text_Line, candidates: list[Candidate]) -> bool:
+        """test if candidates for the line is too trivial for user to choose. If true, then the trivial choice is forced by some other method that follows."""
+        # trivial cases
+        if (L := len(candidates)) == 0:
+            return True
+        if L > 1:
+            # trivial if line.words consists solely of single word like '推 定 法'
+            return all(len(w) == 1 for i, w in enumerate(line.words) if i > 0)
+        # L==1
+        return True
+
+    def _get_forced_choice(self, line: Paged_Text_Line, candidates: list[Candidate]) -> Choice:
+        """decide the forced choice after candidates turn out to be trivial."""
+        if (L := len(candidates)) == 0:
+            return Choice(option=Option.Pass, number=0)
+        elif L > 1:
+            return Choice(option=Option.Fill, number=candidates[-1].idx)
+        if L == 1:
+            if candidates[0].text == "":
+                return Choice(option=Option.Remove, number=0)
+            else:
+                return Choice(option=Option.Fill, number=candidates[0].idx)
+        raise ValueError(f"unexpected pair of {line} and {candidates}")

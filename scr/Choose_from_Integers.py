@@ -3,7 +3,7 @@ from typing import Optional
 
 from rich import print
 
-from Mediator import Candidate, Mediator, Option
+from Mediator import Candidate, Choice, Mediator, Option
 from Text_Line import Paged_Text_Line
 from Text_Lines import Paged_Text_Lines
 
@@ -23,20 +23,43 @@ class Choose_from_Integers(metaclass=abc.ABCMeta):
     def _get_candidates(self, line: Paged_Text_Line) -> list[Candidate]:
         raise NotImplementedError
 
+    def _test_trivial_candidate(self, line: Paged_Text_Line, candidates: list[Candidate]) -> bool:
+        return False
+
+    def _get_forced_choice(self, line: Paged_Text_Line, candidates: list[Candidate]) -> Choice:
+        raise NotImplementedError
+
     def _show_candidates(self, line: Paged_Text_Line, candidates: list[Candidate]) -> None:
         """print correction candidates (for a given row with dust)."""
         display: str = "\n".join([f"{c.idx} | {c.text}" for c in candidates])
         print(f"\n{line.text}\n\n{display}\n")
 
     def _find_candidate(self, idx: int, candidates: list[Candidate]) -> Candidate:
-        """find a condidate with asked idx."""
+        """find a candidate with asked idx."""
         for c in candidates:
             if c.idx == idx:
                 return c
         raise ValueError(f"there is no candidates with idx={idx} in {candidates}")
 
+    def _get_what_chosen(self, choice: Choice) -> str:
+        if choice.option == Option.Fill:
+            return "this"
+        if choice.option in [Option.Pass, Option.Remove]:
+            return choice.option.value
+        raise ValueError(f"unknown type of choice {choice}")
+
+    def _get_choice(self, line: Paged_Text_Line, candidates: list[Candidate], msg: Optional[str] = None) -> Choice:
+        if self._test_trivial_candidate(line, candidates):
+            choice = self._get_forced_choice(line, candidates)
+            print(f"trivial candidate. auto-choose {self._get_what_chosen(choice=choice)}.")
+            return choice
+        user_input, _ = self.mediator.get_user_input(
+            msg=msg, default_value=Option.Pass.value, domain=range(len(candidates))
+        )
+        return self.mediator.interpret(user_input=user_input)
+
     def choose_from_integers(self) -> Paged_Text_Lines:
-        """from diplayed candidates, interactively choose one, and return updated lines."""
+        """from displayed candidates, interactively choose one, and return updated lines."""
         new_lines: list[Paged_Text_Line] = []
         delete_idx: list[int] = []
         if len(self.lines) > 0:
@@ -47,10 +70,7 @@ class Choose_from_Integers(metaclass=abc.ABCMeta):
             candidates: list[Candidate] = self._get_candidates(line)
             self._show_candidates(line, candidates)
             msg: Optional[str] = None if i == 0 else f"({(i+1)}/{len(rows)})"
-            user_input, flag = self.mediator.get_user_input(
-                msg=msg, default_value=Option.Pass.value, domain=range(len(candidates))
-            )
-            choice = self.mediator.interpret(user_input=user_input, flag=flag)
+            choice = self._get_choice(line, candidates, msg)
             match choice.option:
                 case Option.Pass:
                     continue

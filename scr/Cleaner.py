@@ -4,10 +4,9 @@ from typing import Callable, Iterable, Optional
 
 import regex
 from regex import Match, Pattern
-from rich import print
 
 from Choose_from_Integers import Choose_from_Integers
-from Mediator import Candidate, Mediator
+from Mediator import Candidate, Choice, Mediator, Option
 from Text_Line import Paged_Text_Line
 from Text_Lines import Paged_Text_Lines
 
@@ -15,16 +14,22 @@ from Text_Lines import Paged_Text_Lines
 class ICleaner(metaclass=abc.ABCMeta):
     @abc.abstractclassmethod
     def __init__(self) -> None:
+        self.dust_characters: list[str] = []
         raise NotImplementedError
+
+    def clear_dust_characters(self) -> None:
+        self.dust_characters = []
 
     def read_text(self, text: str | list[str]):
         self.lines = Paged_Text_Lines(text)
+        self.clear_dust_characters()
 
     def read_lines(self, lines: Paged_Text_Lines | list[Paged_Text_Line]):
         if isinstance(lines, Paged_Text_Lines):
             self.lines = lines
         else:
             self.lines = Paged_Text_Lines(lines)
+        self.clear_dust_characters()
 
     def apply_each_line(
         self, pat: Pattern, func: Callable[[list[Match], Paged_Text_Line], str], skip_blank_line: bool = True
@@ -72,11 +77,12 @@ class Cleaner(ICleaner):
         self.precedes_dust_finder: str = precedes_dust_finder
         self.not_follow_dust_finder: str = not_follow_dust_finder
         self.lines: Paged_Text_Lines = Paged_Text_Lines()
+        self.dust_characters: list[str] = []
 
     def get_dust_characters(self, rep: int = 2) -> list[str]:
         """scan whole text and find dust characters"""
-        # pre-defined major pattern
-        # dust pattern
+        if self.dust_characters != []:
+            return self.dust_characters
         pat = regex.compile(f"(?<={self.precedes_dust_characters}).*?({self.dust_possible})\\1" + "{" + str(rep) + ",}")
         dust_redundant: list[str] = regex.findall(pat, self.lines.to_text(combine=False))
         return sorted(set(dust_redundant).difference(self.dust_major))
@@ -159,6 +165,13 @@ class Interactive_Cleaner(Choose_from_Integers):
         """find rows that match the dust pattern."""
         return Paged_Text_Lines([line for line in self.lines if any(line.test_pattern_at(pat) for pat in self.pat_row)])
 
+    def _is_trivial_candidate(self, line: Paged_Text_Line, start: int) -> bool:
+        """check whether line.text[:start] is a worthy candidate."""
+        if line.header == line.Header.DIGIT and line[0].startswith(line.text[:start]):
+            return True
+        pos, _ = line.lookup_word(start - 1) if start > 1 else (0, "")
+        return pos > 2
+
     def _get_candidates(self, line: Paged_Text_Line) -> list[Candidate]:
         """get candidate strings for substituting line.text."""
         candidates: set[str] = set()
@@ -166,26 +179,69 @@ class Interactive_Cleaner(Choose_from_Integers):
             for match in regex.finditer(pat, line.text):
                 for start in match.starts():
                     # candidate string hit by regexp
-                    candidates.add(line.text[:start])
+                    if not self._is_trivial_candidate(line, start):
+                        candidates.add(line.text[:start])
                     # candidate words that precedes the word hit by regexp
-                    word_pos, _ = line.lookup_word(start)
-                    candidates.add(line.sep.join(line[:word_pos]))
+                    # word_pos, _ = line.lookup_word(start)
+                    # candidates.add(line.sep.join(line[:word_pos]))
         # candidates are sorted in length of their text
         return Candidate.to_candidate(sorted(candidates))
+
+    def _test_trivial_candidate(self, line: Paged_Text_Line, candidates: list[Candidate]) -> bool:
+        """test if candidates for the line is too trivial for user to choose. If true, then the trivial choice is forced by some other method that follows."""
+        if (L := len(candidates)) == 0:
+            return True
+        if L > 1:
+            return False
+        # L==1
+        if (c := candidates[0]).text == "" or len(c.text) >= len(line.text):
+            return True
+        cand_end: int = len(c.text)
+        diff: str = line.text[cand_end:]
+        pat: Pattern = regex.compile(f"[^{''.join(self.cleaner.get_dust_characters() + self.cleaner.dust_major)}]")
+        return regex.search(pat, diff) is None
+
+    def _get_forced_choice(self, line: Paged_Text_Line, candidates: list[Candidate]) -> Choice:
+        """decide the forced choice after candidates turn out to be trivial."""
+        if (L := len(candidates)) == 0:
+            return Choice(option=Option.Pass, number=0)
+        if L == 1:
+            if (c := candidates[0]).text == "":
+                return Choice(option=Option.Remove, number=0)
+            elif len(c.text) >= len(line.text):
+                return Choice(option=Option.Pass, number=0)
+            else:
+                return Choice(option=Option.Fill, number=candidates[0].idx)
+        raise ValueError(f"unexpected pair of {line} and {candidates}")
 
     def remove_small_dust(self) -> Paged_Text_Lines:
         """interactively remove remaining dust found in some parts of text, showing user many removal patterns."""
         return self.choose_from_integers()
 
 
+class Cleaner_ja(Cleaner):
+    def __init__(
+        self,
+        dust_pre_defined: list[str] = ["\\s", "\\.", "…", ",", "．", "，", "‥", "・", "･", "·", "●", "•", "\\-"],
+        dust_possible: str = "[0-9a-zA-Z -/:-@\\[-~]",
+        dust_rep: int = 3,
+        weight: int = 1,
+        precedes_dust_characters: str = r"[a-zA-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+        precedes_dust_finder: str = r"[a-zA-Z\s:\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+        not_follow_dust_finder: str = r"[A-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
+    ) -> None:
+        super().__init__(
+            dust_pre_defined,
+            dust_possible,
+            dust_rep,
+            weight,
+            precedes_dust_characters,
+            precedes_dust_finder,
+            not_follow_dust_finder,
+        )
+
+
 def clean_ja(ptls: Paged_Text_Lines) -> Paged_Text_Lines:
-    c = Cleaner(
-        dust_pre_defined=["\\s", "\\.", "…", ",", "．", "，", "‥", "・", "･", "●", "\\-"],
-        dust_possible="[0-9a-zA-Z -/:-@\\[-~]",
-        precedes_dust_characters=r"[a-zA-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
-        precedes_dust_finder=r"[a-zA-Z\s:\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
-        not_follow_dust_finder=r"[A-Z\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]",
-    )
+    c = Cleaner_ja()
     c.read_lines(ptls)
-    print(c.get_dust_expression())
     return c.remove_dusts()
