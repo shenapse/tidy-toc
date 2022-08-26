@@ -94,7 +94,7 @@ class Mediator:
         msg: str = ", ".join([explain_integer, explain_options])
         print(msg)
 
-    def interpret(self, user_input: int | str, flag: Mediator.Integer_Flag) -> Choice:
+    def interpret(self, user_input: int | str, flag: Mediator.Integer_Flag = Integer_Flag.Normal) -> Choice:
         """convert user-input integer via click into choice object."""
         if isinstance(user_input, int):
             # fill user input. flag tells us which option should be used.
