@@ -1,13 +1,14 @@
 import click
 
-from main import tidy
+from main import tidy, tidy_all
+from Type_Alias import Path
 
 # this file is for turning main.py into command line tool by click package.
 # just decorating core functions in main.py
 
 
 @click.command(help="clean OCRed ToC text data.")
-@click.argument("text_file", type=click.Path(exists=True, dir_okay=False))
+@click.argument("path", type=click.Path(exists=True))
 @click.option(
     "-c",
     "--clean",
@@ -89,7 +90,7 @@ from main import tidy
     help="overwrite input file with output. If enabled, all options for output file name such as --pre and --join are ignored.",
 )
 def tidy_toc(
-    text_file: str,
+    path: str,
     clean: bool,
     select: bool,
     merge: bool,
@@ -103,21 +104,39 @@ def tidy_toc(
     join: str,
     overwrite: bool,
 ) -> None:
-    tidy(
-        text_file=text_file,
-        clean_dust=clean,
-        select_line=select,
-        merge_line=merge,
-        correct_page_number=page,
-        ja=ja,
-        spacing=adjust,
-        max_line=maxline,
-        dir=dirout,
-        prefix=pre,
-        suffix=suf,
-        join_with=join,
-        overwrite=overwrite,
-    )
+    p = Path(path)
+    if p.is_file():
+        tidy(
+            text_file=path,
+            clean_dust=clean,
+            select_line=select,
+            merge_line=merge,
+            correct_page_number=page,
+            ja=ja,
+            spacing=adjust,
+            max_line=maxline,
+            dir=dirout,
+            prefix=pre,
+            suffix=suf,
+            join_with=join,
+            overwrite=overwrite,
+        )
+    elif p.is_dir():
+        tidy_all(
+            dir=p,
+            clean_dust=clean,
+            select_line=select,
+            merge_line=merge,
+            correct_page_number=page,
+            ja=ja,
+            spacing=adjust,
+            max_line=maxline,
+            dirout=dirout,
+            prefix=pre,
+            suffix=suf,
+            join_with=join,
+            overwrite=overwrite,
+        )
 
 
 if __name__ == "__main__":
