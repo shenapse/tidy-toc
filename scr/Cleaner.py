@@ -61,7 +61,7 @@ class Cleaner(ICleaner):
 
     def __init__(
         self,
-        dust_pre_defined: list[str] = ["\\.", "\\s", "0"],
+        dust_pre_defined: list[str] = ["\\.", "\\s", "0", "©"],
         dust_possible: str = "[a-zA-Z0-9 -/:-@\\[-~]",
         dust_rep: int = 3,
         weight: int = 1,
@@ -150,7 +150,9 @@ class Interactive_Cleaner(Choose_from_Integers):
             self._generate_weak_patterns(reps=[cleaner.dust_rep], weights=[self.cleaner.weight])[0]
         ]
         self.pats_cand: list[Pattern] = self._generate_weak_patterns() + [self._generate_trailing_dust_pattern()]
-        self.mediator: Mediator = Mediator(public_options=["p", "r"], private_options=["f"], max_page=100)
+        self.mediator: Mediator = Mediator(
+            public_options=[Option.Pass.value, Option.Remove.value], private_options=[Option.Digit.value], max_page=100
+        )
 
     def _generate_weak_patterns(self, reps: list[int] = [2, 3], weights: list[int] = [0, 1]) -> list[Pattern]:
         """generate patterns of different ability to detect dust. Used for providing several options to correct words with dust."""
@@ -169,10 +171,15 @@ class Interactive_Cleaner(Choose_from_Integers):
 
     def _is_trivial_candidate(self, line: Paged_Text_Line, start: int) -> bool:
         """check whether line.text[:start] is a worthy candidate."""
+        # if it consists solely of a reliable header, it is trivial
         if line.header == line.Header.DIGIT and line[0].startswith(line.text[:start]):
             return True
+        # if it is like spac[e ]
+        if line.text[start:].endswith("e") or line.text[start:].endswith("s"):
+            return True
+        # if it detects something near header, it is very likely to be trivial
         pos, _ = line.lookup_word(start - 1) if start > 1 else (0, "")
-        return pos > 2
+        return pos <= 1
 
     def _get_candidates(self, line: Paged_Text_Line) -> list[Candidate]:
         """get candidate strings for substituting line.text."""
