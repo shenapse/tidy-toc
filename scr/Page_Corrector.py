@@ -47,7 +47,9 @@ class Fill:
     ) -> None:
         self._lines: Paged_Text_Lines = lines_blank_page_number
         self._lines_ref: Paged_Text_Lines = lines_ref
-        self.mediator: Mediator = Mediator(public_options=["p", "r"], private_options=["f"])
+        self.mediator: Mediator = Mediator(
+            public_options=[Option.Pass.value, Option.Remove.value], private_options=[Option.Digit.value]
+        )
         self.suggest: Suggester = Suggester(lines_ref=lines_ref, default_value=Option.Pass.value)
         self.printer = Texts_Printer()
 
@@ -67,7 +69,7 @@ class Fill:
             match choice.option:
                 case Option.Pass:
                     continue
-                case Option.Fill:
+                case Option.Digit:
                     line.page_number = choice.number
                     new_lines.append(line)
                 case Option.Remove:
@@ -88,7 +90,10 @@ class Correct:
         self._lines: Paged_Text_Lines = lines_strange_page_number
         self._lines_ref: Paged_Text_Lines = lines_ref
         self._ignore: list[int] = ignore
-        self.mediator: Mediator = Mediator(public_options=["p", "r"], private_options=["f", "a"])
+        self.mediator: Mediator = Mediator(
+            public_options=[Option.Pass.value, Option.Remove.value],
+            private_options=[Option.Digit.value, Option.Append.value],
+        )
         self.suggest: Suggester = Suggester(lines_ref=lines_ref)
         self.printer = Texts_Printer()
         self.pat_append: Pattern = re.compile("|".join([f"({key})" for key in append_key]))
@@ -114,7 +119,7 @@ class Correct:
             match choice.option:
                 case Option.Pass:
                     continue
-                case Option.Fill:
+                case Option.Digit:
                     line.page_number = choice.number
                     new_lines.append(line)
                 case Option.Append:
