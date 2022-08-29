@@ -1,11 +1,11 @@
-from Cleaner import Cleaner, Cleaner_ja, Interactive_Cleaner
+from Cleaner import Cleaner, Cleaner_ja, Interactive_Cleaner, Interactive_Cleaner_ja
 from Extractor import Extractor
 from Filter_Lines import Filter_Lines
 from Filtering_Prompt import Prompt
 from Interpreter import Interpreter
 from Merger import Merger
 from Page_Corrector import Correct, Fill
-from Spacer import Insert_Space, Remove_Space
+from Spacer import Header_Aligner, Insert_Space, Remove_Space
 from Text_Lines import Paged_Text_Lines
 from Type_Alias import Path, Save_Result
 
@@ -29,11 +29,24 @@ def get_new_file_name(file: Path, prefix: str = "", suffix: str = "", join_with:
 
 def apply_clean(ptls: Paged_Text_Lines, clean_dust: bool = True, ja: bool = False) -> Paged_Text_Lines:
     if clean_dust:
-        c = Cleaner_ja() if ja else Cleaner()
-        c.read_lines(ptls)
-        ptls = c.remove_dusts()
-        ic = Interactive_Cleaner(cleaner=c, lines=ptls)
-        ptls = ic.remove_small_dust()
+        if ja:
+            c = Cleaner_ja()
+            c.read_lines(ptls)
+            ptls = c.remove_dusts()
+            aligner = Header_Aligner(lines=ptls)
+            aligner.detect_symbols()
+            ptls = aligner.align_header()
+            ic = Interactive_Cleaner_ja(cleaner=c, lines=ptls)
+            ptls = ic.remove_small_dust()
+        else:
+            c = Cleaner()
+            c.read_lines(ptls)
+            ptls = c.remove_dusts()
+            aligner = Header_Aligner(lines=ptls)
+            aligner.detect_symbols()
+            ptls = aligner.align_header()
+            ic = Interactive_Cleaner(cleaner=c, lines=ptls)
+            ptls = ic.remove_small_dust()
     return ptls.format_space()
 
 
@@ -108,10 +121,10 @@ def tidy(
         ptls = Paged_Text_Lines(text)
         assert isinstance(ptls, Paged_Text_Lines)
         ptls = apply_clean(ptls, clean_dust=clean_dust, ja=ja)
+        ptls = insert_space(ptls, spacing=spacing)
         ptls = apply_select(ptls, select_line=select_line, max_line=max_line)
         ptls = apply_merge(ptls, merge_line=merge_line)
         ptls = apply_page_correct(ptls, correct_page_number)
-        ptls = insert_space(ptls, spacing=spacing)
         text_processed: str = ptls.to_text()
         # saving procedure
         dir_out: Path = file.parent if dir is None else Path(dir)
