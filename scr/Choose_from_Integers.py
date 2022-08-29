@@ -43,7 +43,7 @@ class Choose_from_Integers(metaclass=abc.ABCMeta):
 
     def _get_what_chosen(self, choice: Choice) -> str:
         """generate string that describes the choice for printing it."""
-        if choice.option == Option.Fill:
+        if choice.option == Option.Digit:
             return "this"
         if choice.option in [Option.Pass, Option.Remove]:
             return choice.option.value
@@ -58,6 +58,9 @@ class Choose_from_Integers(metaclass=abc.ABCMeta):
             msg=msg, default_value=Option.Pass.value, domain=range(len(candidates))
         )
         return self.mediator.interpret(user_input=user_input)
+
+    def _on_ignore(self, line: Paged_Text_Line):
+        raise NotImplementedError
 
     def choose_from_integers(self) -> Paged_Text_Lines:
         """from displayed candidates, interactively choose one, and return updated lines."""
@@ -76,11 +79,15 @@ class Choose_from_Integers(metaclass=abc.ABCMeta):
             match choice.option:
                 case Option.Pass:
                     continue
-                case Option.Fill:
+                case Option.Digit:
                     line.text = self._find_candidate(idx=choice.number, candidates=candidates).text
                     new_lines.append(line)
                 case Option.Remove:
                     delete_idx.append(line.idx)
+                case Option.Exit:
+                    break
+                case Option.Ignore:
+                    self._on_ignore(line)
                 case _:
                     raise Exception(f"unknown choice type {choice.option}.")
         return self.lines.exclude(delete_idx).overwrite(new_lines)

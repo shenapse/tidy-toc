@@ -26,8 +26,11 @@ class Candidate:
 class Option(Enum):
     Pass = "p"
     Fill = "f"
+    Digit = "d"
     Append = "a"
     Remove = "r"
+    Exit = "e"
+    Ignore = "i"
 
 
 @dataclass
@@ -51,7 +54,10 @@ class Mediator:
             return cls.Plus if re.search(Mediator._pat_plus, x) else cls.Normal
 
     def __init__(
-        self, public_options: list[str] = ["p", "r"], private_options: list[str] = ["f"], max_page: int = 10000
+        self,
+        public_options: list[str] = [Option.Pass.value, Option.Remove.value],
+        private_options: list[str] = [Option.Digit.value],
+        max_page: int = 10000,
     ) -> None:
         self._public_options: list[str] = [opt.value for opt in Option if opt.value in public_options]
         self._private_options: list[str] = [opt.value for opt in Option if opt.value in private_options]
@@ -98,7 +104,7 @@ class Mediator:
         """convert user-input integer via click into choice object."""
         if isinstance(user_input, int):
             # fill user input. flag tells us which option should be used.
-            option: Option = Option.Append if flag == Mediator.Integer_Flag.Plus else Option.Fill
+            option: Option = Option.Append if flag == Mediator.Integer_Flag.Plus else Option.Digit
             return Choice(option=option, number=user_input)
         # other options are simply converted back to option objects
         # their number property are not interesting
