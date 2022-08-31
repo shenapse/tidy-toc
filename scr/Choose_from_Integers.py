@@ -72,10 +72,10 @@ class Choose_from_Integers(metaclass=abc.ABCMeta):
         print(f"{len(rows)} cases found.")
         for i, line in enumerate(rows):
             candidates: list[Candidate] = self._get_candidates(line)
-            if len(candidates) > 0:
+            if nonzero := (len(candidates) > 0):
                 self._show_candidates(line, candidates)
             msg: Optional[str] = None if i == 0 else f"({(i+1)}/{len(rows)})"
-            choice = self._get_choice(line, candidates, msg)
+            choice = self._get_choice(line, candidates, msg) if nonzero else Choice(option=Option.Pass, number=0)
             match choice.option:
                 case Option.Pass:
                     continue

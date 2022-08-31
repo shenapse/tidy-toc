@@ -1,6 +1,6 @@
 import dataclasses
 import itertools
-from typing import Final, Optional
+from typing import Callable, Optional
 
 import regex
 from regex import Match, Pattern
@@ -189,29 +189,40 @@ class Header_Symbol:
 
 
 class Header_Symbol_Detecter:
-    pat_leading_symbol: Final[Pattern] = regex.compile("^([^\\d\\s])(?=\\s?\\d)")
-
     @classmethod
     def coalesce(cls, x: Optional[str]) -> str:
         return "" if x is None else x
 
-    def __init__(self, lines: Paged_Text_Lines, header_symbol: Optional[str] = "", sep: Optional[str] = ".") -> None:
-        self.mediator = Mediator(public_options=[Option.Exit.value], private_options=[Option.Digit.value])
+    def __init__(
+        self,
+        lines: Paged_Text_Lines,
+        header_symbol: Optional[str] = "",
+        sep: Optional[str] = ".",
+        sep_possible: list[str] = ["\\.", ","],
+    ) -> None:
+        self.mediator = Mediator(public_options=[], private_options=[Option.Digit.value])
         self.lines: Paged_Text_Lines = lines
         self.header_freq: dict[str, int] = {self.coalesce(header_symbol): 0}
         self.header_symbol: Optional[str] = self.coalesce(header_symbol)
         self.sep_freq: dict[str, int] = {self.coalesce(sep): 0}
         self.sep_symbol: Optional[str] = self.coalesce(sep)
+        self.sep_possible: list[str] = sep_possible
+        self.pat_leading_symbol: Pattern = self._get_pat_leading_symbol()
+
+    def _get_pat_leading_symbol(self) -> Pattern:
+        seps: str = "".join(self.sep_possible + [self.coalesce(self.sep_symbol)])
+        return regex.compile(f"^([^\\s{seps}])(?=\\s?[\\d{seps}])")
 
     def detect(self) -> None:
         self.header_freq = self.get_header_symbol_frequency()
         self.header_symbol = None if (sym := self.get_header_symbol()) is None else sym.symbol
         self.sep_freq = self.get_header_sep_frequency(self.header_symbol)
         self.sep_symbol = None if (s := self.get_header_sep(self.header_symbol)) is None else s.symbol
+        self.pat_leading_symbol = self._get_pat_leading_symbol()
 
     def _get_frequency(self, pat: Pattern) -> dict[str, int]:
         """get potential header symbol with their appearance times"""
-        freq: dict[str, int] = {}
+        freq: dict[str, int] = {"": 0}
         for line in self.lines:
             hit: Optional[Match] = regex.search(pat, line.text)
             if isinstance(hit, Match):
@@ -285,20 +296,20 @@ class Header_Aligner(Choose_from_Integers):
     ) -> None:
         self.lines: Paged_Text_Lines = lines
         self.mediator = Mediator(
-            public_options=[Option.Pass.value, Option.Exit.value], private_options=[Option.Digit.value]
+            public_options=[Option.Pass.value, Option.Exit.value, Option.Ignore.value],
+            private_options=[Option.Digit.value],
         )
         self.detecter = Header_Symbol_Detecter(lines=lines, header_symbol=header_symbol, sep=sep)
         self.header_symbol: str = self.coalesce(header_symbol)
         self.sep: str = self.coalesce(sep)
         self.ignore: set[str] = ignore
         self.sep_possible: list[str] = sep_possible
-        self.pats_align: list[Pattern] = [self._get_pat_align(), self._get_pat_align(include_possible_sep=False)]
+        self.pats_align: list[Pattern] = [self._get_pat_align()]
         self.pat_well_aligned: Pattern = self._get_pat_well_aligned()
         self.pat_header_symbol: Pattern = self._get_pat_header_symbol()
         self.pat_sep_possible: Pattern = self._get_pat_sep_possible()
+        self.pat_replace_sep: Pattern = self._get_pat_replace_sep()
         self.pat_digit_place_undecidable: Pattern = self._get_pat_digit_place_undecidable()
-        # self.pat_replace_header: Pattern = regex.compile(f"^[{regex.compile(self.header_symbol)}]")
-        # pat_replace_sep: Final[Pattern] = regex.compile("")
 
     def detect_symbols(self) -> None:
         def coalesce(x: Optional[str]) -> str:
@@ -307,16 +318,21 @@ class Header_Aligner(Choose_from_Integers):
         self.detecter.detect()
         self.header_symbol = coalesce(self.detecter.header_symbol)
         self.sep = coalesce(self.detecter.sep_symbol)
-        self.pats_align = [self._get_pat_align(), self._get_pat_align(include_possible_sep=False)]
+        self.pats_align = [self._get_pat_align()]
         self.pat_well_aligned = self._get_pat_well_aligned()
         self.pat_header_symbol = self._get_pat_header_symbol()
         self.pat_sep_possible = self._get_pat_sep_possible()
+        self.pat_replace_sep = self._get_pat_replace_sep()
         self.pat_digit_place_undecidable = self._get_pat_digit_place_undecidable()
 
     def is_ignorable(self, text: str) -> bool:
         return any(text.lower().startswith(w.lower()) for w in self.ignore)
 
     def _get_pat_well_aligned(self) -> Pattern:
+        sep: str = regex.escape(self.sep)
+        return regex.compile(f"^{(regex.escape(self.header_symbol))}[\\d{sep}]+\\s[^\\d\\s{sep}]")
+
+    def _get_pat_almost_aligned(self) -> Pattern:
         sep: str = regex.escape(self.sep)
         return regex.compile(f"^{(regex.escape(self.header_symbol))}[\\d{sep}]+\\s[^\\d\\s{sep}]")
 
@@ -330,15 +346,26 @@ class Header_Aligner(Choose_from_Integers):
     def _get_pat_sep_possible(self) -> Pattern:
         return regex.compile(f"[{''.join(self.sep_possible)}]+")
 
+    def _get_characters_in_header(self) -> list[str]:
+        return self.sep_possible + [regex.escape(self.sep), "\\s", "\\d"]
+
     def _get_pat_digit_place_undecidable(self) -> Pattern:
-        chrs: str = "".join(self.sep_possible + [regex.escape(self.sep), "\\s", "\\d"])
+        chrs: str = "".join(self._get_characters_in_header())
         return regex.compile(f"(?<=^{regex.escape(self.header_symbol)}[{chrs}]+)\\d[^{chrs}]")
 
+    def _get_pat_replace_sep(self) -> Pattern:
+        return regex.compile(
+            f"(?<=^{regex.escape(self.header_symbol)}[{''.join(self._get_characters_in_header())}]*?)[{''.join(self.sep_possible)}]+"
+        )
+
+    def _get_pat_sample_header_symbol(self) -> Pattern:
+        return regex.compile(f"^[^{''.join(self._get_characters_in_header())}]")
+
     def replace_header_symbol(self, text: str) -> str:
-        return regex.sub(self.pat_header_symbol, self.header_symbol, text)
+        return regex.sub(self._get_pat_sample_header_symbol(), self.header_symbol, text)
 
     def replace_sep(self, text: str) -> str:
-        return regex.sub(self.pat_sep_possible, self.sep, text)
+        return regex.sub(self.pat_replace_sep, self.sep, text)
 
     def _get_pat_align(self, include_possible_sep: bool = True) -> Pattern:
         # unique detected header symbols
@@ -347,9 +374,9 @@ class Header_Aligner(Choose_from_Integers):
         if header_symbols == []:
             header_symbols.append("")
         # possible characters in header except header symbol
-        characters_header: list[str] = [regex.escape(self.sep)] + ["\\d", "\\s"]
-        if include_possible_sep:
-            characters_header.extend(self.sep_possible)
+        characters_header: list[str] = (
+            self._get_characters_in_header() if include_possible_sep else [regex.escape(self.sep)] + ["\\d", "\\s"]
+        )
         precede: str = header_symbols[0] if len(header_symbols) == 1 else f"[{''.join(header_symbols)}]"
         return regex.compile(f"(?<=^{precede})[{''.join(characters_header)}]+")
 
@@ -368,38 +395,62 @@ class Header_Aligner(Choose_from_Integers):
     def align_header(self) -> Paged_Text_Lines:
         return self.choose_from_integers()
 
+    def _sample_header_symbol(self, line: Paged_Text_Line) -> str:
+        pat = regex.compile(f"^[^{''.join(self._get_characters_in_header())}]")
+        return "" if (hit := regex.search(pat, line.text)) is None else hit.group()
+
     def find_rows(self) -> list[Paged_Text_Line]:
         return [
             self.lines[i]
             for i in self.detecter.get_idx_symboled()
-            if not self.is_ignorable(self.lines[i].text) and not self.is_aligned(self.lines[i])
+            if not self.is_ignorable(self.lines[i].text)
+            and (not self.is_aligned(self.lines[i]) or self._is_digit_place_undecidable(self.lines[i]))
         ]
 
-    def _get_raw_candidates(self, text: str) -> list[str]:
+    def _get_all_combinations(self, length: int) -> list[tuple]:
+        comb: list[tuple] = []
+        for i in range(length + 1):
+            comb.extend(list(itertools.combinations(range(length), i)))
+        return comb
+
+    def _process_string_by_fns(self, text: str, fns: list[Callable[[str], str]]) -> set[str]:
+        """get all possible combinations of processed text by fns"""
+        combs: list[tuple] = self._get_all_combinations(len(fns))
+        processed: set[str] = set()
+        for comb in combs:
+            t: str = text
+            for i in comb:
+                t = fns[i](t)
+            processed.add(t)
+        return processed
+
+    def _get_raw_candidates(self, line: Paged_Text_Line) -> set[str]:
         """get possible pattern of candidates. replace_header x replace_sep"""
+        als: list[str] = self._get_aligned(line.text)
+        if self._is_digit_place_undecidable(line):
+            als = self._get_suggestion_diff_sep_place(als)
         cands: set[str] = set()
-        als: list[str] = self._get_aligned(text)
         for al in als:
-            init: list[str] = [al, self.replace_header_symbol(al)]
-            for cand in init:
-                cands.add(cand)
-                cands.add(self.replace_sep(cand))
-        return list(cands)
+            cands = cands.union(
+                self._process_string_by_fns(text=al, fns=[self.replace_header_symbol, self.replace_sep])
+            )
+        return cands
 
     def _get_candidates(self, line: Paged_Text_Line) -> list[Candidate]:
         cands: set[str] = set()
-        for al in self._get_aligned(line.text):
-            for cand in self._get_raw_candidates(al):
-                if not self._is_worthless_candidate(line, cand):
-                    cands.add(cand)
+        for cand in self._get_raw_candidates(line):
+            if not self._is_worthless_candidate(line, cand):
+                cands.add(cand)
         return Candidate.to_candidate(sorted(cands))
 
     def _test_trivial_candidate(self, line: Paged_Text_Line, candidates: list[Candidate]) -> bool:
-        if self._is_digit_place_undecidable(line):
+        if self._is_digit_place_undecidable(line) or self._sample_header_symbol(line) != self.header_symbol:
             return False
-        return len(candidates) == 1
+        return len(candidates) <= 1
 
     def _get_forced_choice(self, line: Paged_Text_Line, candidates: list[Candidate]) -> Choice:
+        if len(candidates) == 0:
+            return Choice(option=Option.Pass, number=0)
         if len(candidates) == 1:
             return Choice(option=Option.Digit, number=candidates[0].idx)
         raise ValueError(f"unexpected pair of {line} and {candidates}")
@@ -410,8 +461,30 @@ class Header_Aligner(Choose_from_Integers):
         return False
 
     def _on_ignore(self, line: Paged_Text_Line):
-        raise NotImplementedError
+        self.ignore.add(self._sample_header_symbol(line))
 
-    def _is_digit_place_undecidable(self, line: Paged_Text_Line) -> bool:
+    def _is_digit_place_undecidable(self, line: Paged_Text_Line | str) -> bool:
         """test if line.text has sentence that starts with digit just after header. e.g., 1.3 2stage regression"""
-        return regex.search(self.pat_digit_place_undecidable, line.text) is not None
+        text: str = line if isinstance(line, str) else line.text
+        return regex.search(self.pat_digit_place_undecidable, text) is not None
+
+    def _get_suggestion_diff_sep_place(self, texts: list[str]) -> list[str]:
+        cands: list[str] = []
+        pat_digits: Pattern = regex.compile("\\d+$")
+        pat_space: Pattern = regex.compile("\\s")
+        for text in texts:
+            hit: Optional[Match] = regex.search(pat_space, text)
+            if isinstance(hit, Match):
+                start = hit.starts()[0]
+                end = hit.ends()[0]
+                # remove the first space
+                text = text[:start] + text[end:]
+                # now start points at the first character of sentence
+                # end points at the second
+                for match in regex.finditer(pat_digits, text[:start]):
+                    if isinstance(match, Match):
+                        text_match: str = match.group()
+                        for i in range(len(text_match) + 1):
+                            at: int = start - i
+                            cands.append(text[:at] + " " + text[at:])
+        return cands
