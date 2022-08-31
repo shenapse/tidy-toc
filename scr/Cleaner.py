@@ -221,7 +221,7 @@ class Interactive_Cleaner(Choose_from_Integers):
             elif len(c.text) >= len(line.text):
                 return Choice(option=Option.Pass, number=0)
             else:
-                return Choice(option=Option.Fill, number=candidates[0].idx)
+                return Choice(option=Option.Digit, number=candidates[0].idx)
         raise ValueError(f"unexpected pair of {line} and {candidates}")
 
     def remove_small_dust(self) -> Paged_Text_Lines:
