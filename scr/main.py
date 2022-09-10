@@ -28,30 +28,33 @@ def get_new_file_name(file: Path, prefix: str = "", suffix: str = "", join_with:
 
 
 def apply_clean(ptls: Paged_Text_Lines, clean_dust: bool = True, ja: bool = False) -> Paged_Text_Lines:
-    if clean_dust:
-        if ja:
-            c = Cleaner_ja()
-            c.read_lines(ptls)
-            ptls = c.remove_dusts()
-            aligner = Header_Aligner(lines=ptls)
-            aligner.detect_symbols()
-            ptls = aligner.align_header()
-            ic = Interactive_Cleaner_ja(cleaner=c, lines=ptls)
-            ptls = ic.remove_small_dust()
-        else:
-            c = Cleaner()
-            c.read_lines(ptls)
-            ptls = c.remove_dusts()
-            aligner = Header_Aligner(lines=ptls)
-            aligner.detect_symbols()
-            ptls = aligner.align_header()
-            ic = Interactive_Cleaner(cleaner=c, lines=ptls)
-            ptls = ic.remove_small_dust()
+    if not clean_dust:
+        return ptls
+    print("\nCleaning each lines.\n")
+    if ja:
+        c = Cleaner_ja()
+        c.read_lines(ptls)
+        ptls = c.remove_dusts()
+        aligner = Header_Aligner(lines=ptls)
+        aligner.detect_symbols()
+        ptls = aligner.align_header()
+        ic = Interactive_Cleaner_ja(cleaner=c, lines=ptls)
+        ptls = ic.remove_small_dust()
+    else:
+        c = Cleaner()
+        c.read_lines(ptls)
+        ptls = c.remove_dusts()
+        aligner = Header_Aligner(lines=ptls)
+        aligner.detect_symbols()
+        ptls = aligner.align_header()
+        ic = Interactive_Cleaner(cleaner=c, lines=ptls)
+        ptls = ic.remove_small_dust()
     return ptls.format_space()
 
 
 def apply_select(ptls: Paged_Text_Lines, select_line: bool = True, max_line: int = 10) -> Paged_Text_Lines:
     if select_line:
+        print("\n Delete lines.\n")
         ex = Extractor(text=ptls)
         ptls_ex: Paged_Text_Lines = (
             ex.get_lines_with_unexpected_header()
@@ -68,6 +71,7 @@ def apply_select(ptls: Paged_Text_Lines, select_line: bool = True, max_line: int
 
 def apply_merge(ptls: Paged_Text_Lines, merge_line: bool) -> Paged_Text_Lines:
     if merge_line:
+        print("\n Merging lines.\n")
         mer = Merger(ptls)
         ptls = mer.get_merged_lines()
     return ptls
@@ -75,6 +79,7 @@ def apply_merge(ptls: Paged_Text_Lines, merge_line: bool) -> Paged_Text_Lines:
 
 def apply_page_correct(ptls: Paged_Text_Lines, correct_page: bool) -> Paged_Text_Lines:
     if correct_page:
+        print("\n Correct page numbers.\n")
         ex = Extractor(text=ptls)
         lines_not_numbered = ex.get_non_numbered_lines()
         filler = Fill(lines_blank_page_number=lines_not_numbered, lines_ref=ptls)
@@ -91,6 +96,7 @@ def apply_page_correct(ptls: Paged_Text_Lines, correct_page: bool) -> Paged_Text
 
 def insert_space(ptls: Paged_Text_Lines, spacing: bool) -> Paged_Text_Lines:
     if spacing:
+        print("\n Adjust spacing.\n")
         inserter = Insert_Space(ptls)
         ptls = inserter.get_rows_space_inserted()
         remover = Remove_Space(ptls)
