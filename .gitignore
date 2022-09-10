@@ -3,6 +3,7 @@
 /.venv
 /poetry.lock
 /sample/*
+/tests/txt
 !/sample/demo*.gif
 !/sample/sample*.txt
 !/sample/table_of_contents*.txt
